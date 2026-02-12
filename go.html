@@ -1,21 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>RocketVPN Redirect</title>
+    <title>Redirect</title>
     <script>
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
             const vless = urlParams.get('vless');
             if (vless) {
-                // Прямой вызов протокола V2Box
                 window.location.href = "v2box://install-config?url=" + vless;
-                // Закрываем страницу через пару секунд
-                setTimeout(() => { window.close(); }, 2500);
+                setTimeout(() => { window.close(); }, 2000);
             }
         };
     </script>
 </head>
-<body style="background: #0f0f1b; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif;">
-    <p>Перенаправление в V2Box...</p>
+<body style="background: #0f0f1b; color: white; display: flex; align-items: center; justify-content: center; height: 100vh;">
+    <p>Загрузка конфига...</p>
 </body>
 </html>
