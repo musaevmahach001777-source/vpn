@@ -20,6 +20,7 @@
         .box-data { font-size: 14px; font-weight: 600; }
         .btn { border: none; padding: 18px; border-radius: 20px; font-size: 15px; font-weight: 800; color: white; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 5px; -webkit-tap-highlight-color: transparent; }
         .btn-rocket { background: linear-gradient(45deg, #00c6ff, #0072ff); box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4); animation: pulse 2s infinite; }
+        .btn-test { background: linear-gradient(45deg, #f093fb, #f5576c); border: 1px solid rgba(255,255,255,0.2); }
         .btn-vpn { background: linear-gradient(45deg, #ff0080, #7928ca); }
         .btn-pay { background: linear-gradient(45deg, #00dfd8, #007cf0); }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
@@ -43,6 +44,7 @@
         </div>
         
         <button class="btn btn-rocket" id="rocketBtn">🚀 ПОДКЛЮЧИТЬ VPN</button>
+        <button class="btn btn-test" id="testBtn">🎁 ТЕСТОВЫЙ ПЕРИОД (24ч)</button>
         
         <button class="btn btn-vpn" onclick="openTariffModal()">💎 ВЫБРАТЬ ТАРИФ</button>
         <button class="btn btn-pay" onclick="openAmountModal()">💳 ПОПОЛНИТЬ БАЛАНС</button>
@@ -77,12 +79,23 @@
         if (parseInt(days) > 0) { 
             document.getElementById('statusDisplay').innerText = "● Активен"; 
             document.getElementById('statusDisplay').style.color = "#00ff00"; 
+            // Скрываем кнопку теста, если подписка уже активна
+            document.getElementById('testBtn').style.display = "none";
         }
+
+        // ЛОГИКА ТЕСТОВОГО ПЕРИОДА
+        document.getElementById('testBtn').onclick = function() {
+            tg.showConfirm("Получить бесплатный доступ на 24 часа?", (ok) => {
+                if (ok) {
+                    tg.sendData(JSON.stringify({action: 'get_free_test'}));
+                    tg.close();
+                }
+            });
+        };
 
         // ЛОГИКА ГЛАВНОЙ КНОПКИ
         document.getElementById('rocketBtn').onclick = function() {
             if (parseInt(days) <= 0) {
-                // Если дней нет, предлагаем тест
                 tg.showConfirm("У вас нет активной подписки. Хотите получить бесплатный тестовый доступ на 24 часа?", (ok) => {
                     if (ok) {
                         tg.sendData(JSON.stringify({action: 'get_free_test'}));
@@ -90,7 +103,6 @@
                     }
                 });
             } else {
-                // Если дни есть, просто запрашиваем выдачу кнопки с ключом
                 tg.showConfirm("Для подключения мы отправим вам ключ и инструкции в чат. Продолжить?", (ok) => {
                     if (ok) {
                         tg.sendData(JSON.stringify({action: 'request_vpn_button'}));
@@ -117,7 +129,6 @@
             setTimeout(() => tg.close(), 100);
         }
 
-        // Звезды на фоне
         const container = document.getElementById('stars');
         for (let i = 0; i < 30; i++) {
             const star = document.createElement('div');
