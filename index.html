@@ -14,19 +14,20 @@
         .main-container { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 15px; transition: 0.3s; }
         .blur-bg { filter: blur(15px); pointer-events: none; }
         .card-balance { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255, 0, 128, 0.3); border-radius: 25px; padding: 25px; text-align: center; }
-        /* Добавили ID для динамического обновления баланса */
         .balance-val { font-size: 48px; font-weight: 800; background: linear-gradient(45deg, var(--accent-pink), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .box { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 20px; }
         .box-title { font-size: 11px; opacity: 0.6; text-transform: uppercase; margin-bottom: 5px; }
         .box-data { font-size: 14px; font-weight: 600; }
-        .btn { border: none; padding: 20px; border-radius: 20px; font-size: 16px; font-weight: 800; color: white; cursor: pointer; transition: 0.3s; width: 100%; }
+        .btn { border: none; padding: 20px; border-radius: 20px; font-size: 16px; font-weight: 800; color: white; cursor: pointer; transition: 0.3s; width: 100%; margin-bottom: 5px; }
         .btn-vpn { background: linear-gradient(45deg, #ff0080, #7928ca); box-shadow: 0 5px 20px rgba(255, 0, 128, 0.4); }
         .btn-pay { background: linear-gradient(45deg, #00dfd8, #007cf0); box-shadow: 0 5px 20px rgba(0, 223, 216, 0.3); }
-        .modal { position: fixed; bottom: -100%; left: 0; width: 100%; background: #1a1a2e; border-top: 2px solid var(--accent-cyan); border-top-left-radius: 30px; border-top-right-radius: 30px; padding: 30px 20px; z-index: 100; transition: 0.4s; box-sizing: border-box; }
+        .modal { position: fixed; bottom: -100%; left: 0; width: 100%; background: #1a1a2e; border-top: 2px solid var(--accent-cyan); border-top-left-radius: 30px; border-top-right-radius: 30px; padding: 25px 20px; z-index: 100; transition: 0.4s; box-sizing: border-box; max-height: 80vh; overflow-y: auto; }
         .modal.active { bottom: 0; }
         input { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid var(--accent-cyan); background: rgba(255,255,255,0.05); color: white; font-size: 20px; text-align: center; outline: none; margin-bottom: 20px; box-sizing: border-box; }
-        .pay-option { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(255,255,255,0.1); }
+        .pay-option { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 10px; transition: 0.2s; }
+        .pay-option:active { transform: scale(0.98); background: rgba(255,255,255,0.1); }
+        .discount { background: var(--accent-pink); color: white; font-size: 10px; padding: 2px 8px; border-radius: 10px; margin-left: 10px; }
     </style>
 </head>
 <body>
@@ -34,17 +35,38 @@
     <div class="main-container" id="mainContent">
         <div class="card-balance">
             <div style="font-size: 14px; opacity: 0.8;">Ваш баланс</div>
-            <div class="balance-val" id="balanceDisplay">450.00 ₽</div>
+            <div class="balance-val" id="balanceDisplay">0.00 ₽</div>
             <div style="font-size: 11px; margin-top: 10px; opacity: 0.5;" id="userDisplay">ID: ---</div>
         </div>
         <div class="grid-info">
-            <div class="box"><div class="box-title">Статус</div><div class="box-data">● Активен</div></div>
+            <div class="box"><div class="box-title">Статус</div><div class="box-data" id="statusDisplay" style="color:#ff4d4d">● Не активен</div></div>
             <div class="box"><div class="box-title">Локация</div><div class="box-data">🇩🇪 Germany</div></div>
-            <div class="box"><div class="box-title">Лимит</div><div class="box-data">12.4 / 100 GB</div></div>
-            <div class="box"><div class="box-title">Дней</div><div class="box-data">26 дней</div></div>
+            <div class="box"><div class="box-title">Лимит</div><div class="box-data">0 / 100 GB</div></div>
+            <div class="box"><div class="box-title">Дней</div><div class="box-data" id="daysDisplay">0 дней</div></div>
         </div>
-        <button class="btn btn-vpn" onclick="tgVpn()">🚀 ПОДКЛЮЧИТЬ VPN</button>
+        <button class="btn btn-vpn" onclick="openTariffModal()">🚀 ВЫБРАТЬ ПОДПИСКУ</button>
         <button class="btn btn-pay" onclick="openAmountModal()">💳 ПОПОЛНИТЬ БАЛАНС</button>
+    </div>
+
+    <div class="modal" id="tariffModal">
+        <div style="text-align:center; margin-bottom:20px; font-weight:700; color: var(--accent-cyan);">ВЫБЕРИТЕ ТАРИФ</div>
+        <div class="pay-option" onclick="confirmBuy(1, 299)">
+            <div><b>1 Месяц</b><br><small>299 ₽</small></div>
+            <span>🔥</span>
+        </div>
+        <div class="pay-option" onclick="confirmBuy(3, 834)">
+            <div><b>3 Месяца</b><span class="discount">-7%</span><br><small>834 ₽ (вместо 897)</small></div>
+            <span>⭐</span>
+        </div>
+        <div class="pay-option" onclick="confirmBuy(6, 1525)">
+            <div><b>6 Месяцев</b><span class="discount">-15%</span><br><small>1525 ₽ (вместо 1794)</small></div>
+            <span>💎</span>
+        </div>
+        <div class="pay-option" onclick="confirmBuy(12, 2870)">
+            <div><b>12 Месяцев</b><span class="discount">-20%</span><br><small>2870 ₽ (вместо 3588)</small></div>
+            <span>👑</span>
+        </div>
+        <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Закрыть</div>
     </div>
 
     <div class="modal" id="amountModal">
@@ -67,27 +89,45 @@
         tg.expand();
         tg.ready();
 
-        // ЛОГИКА ОБНОВЛЕНИЯ ДАННЫХ ИЗ БОТА
         const urlParams = new URLSearchParams(window.location.search);
-        const balance = urlParams.get('balance');
-        const userId = urlParams.get('id');
+        const balance = urlParams.get('balance') || "0.00";
+        const userId = urlParams.get('id') || "---";
+        const days = urlParams.get('days') || "0";
 
-        if (balance) {
-            document.getElementById('balanceDisplay').innerText = balance + " ₽";
+        document.getElementById('balanceDisplay').innerText = balance + " ₽";
+        document.getElementById('userDisplay').innerText = "ID: " + userId;
+        document.getElementById('daysDisplay').innerText = days + " дней";
+        
+        if (parseInt(days) > 0) {
+            const st = document.getElementById('statusDisplay');
+            st.innerText = "● Активен"; st.style.color = "#00ff00";
         }
-        if (userId) {
-            document.getElementById('userDisplay').innerText = "ID: " + userId;
+
+        function openTariffModal() {
+            tg.HapticFeedback.impactOccurred('medium');
+            document.getElementById('tariffModal').classList.add('active');
+            document.getElementById('mainContent').classList.add('blur-bg');
+        }
+
+        function confirmBuy(months, price) {
+            if (parseFloat(balance) < price) {
+                return tg.showAlert(`Недостаточно средств! Баланс: ${balance}₽, нужно: ${price}₽`);
+            }
+            tg.showConfirm(`Купить подписку на ${months} мес. за ${price}₽?`, (ok) => {
+                if (ok) {
+                    tg.sendData(JSON.stringify({action: "buy_subscription", months: months, price: price}));
+                    setTimeout(() => tg.close(), 100);
+                }
+            });
         }
 
         function openAmountModal() {
-            tg.HapticFeedback.impactOccurred('medium');
             document.getElementById('amountModal').classList.add('active');
             document.getElementById('mainContent').classList.add('blur-bg');
         }
 
         function openPayMethods() {
-            let sum = document.getElementById('sumInput').value;
-            if (sum < 10) return tg.showAlert('Мин. сумма 10₽');
+            if (document.getElementById('sumInput').value < 10) return tg.showAlert('Мин. 10₽');
             document.getElementById('amountModal').classList.remove('active');
             document.getElementById('methodModal').classList.add('active');
         }
@@ -95,7 +135,7 @@
         function paySBP() {
             let sum = document.getElementById('sumInput').value;
             tg.sendData(JSON.stringify({action: "pay_sbp", amount: sum}));
-            setTimeout(() => { tg.close(); }, 150);
+            setTimeout(() => tg.close(), 100);
         }
 
         function closeAll() {
@@ -103,9 +143,7 @@
             document.getElementById('mainContent').classList.remove('blur-bg');
         }
 
-        function tgVpn() { tg.showAlert('Ключ уже активирован в профиле!'); }
-
-        // ЗВЕЗДЫ
+        // Звезды без сокращений
         const container = document.getElementById('stars');
         for (let i = 0; i < 40; i++) {
             const star = document.createElement('div');
