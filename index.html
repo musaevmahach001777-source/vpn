@@ -68,25 +68,36 @@
         const params = new URLSearchParams(window.location.search);
         const balance = params.get('balance') || "0";
         const days = params.get('days') || "0";
+        const userId = params.get('id') || "---";
 
         document.getElementById('balanceDisplay').innerText = balance + " ₽";
-        document.getElementById('userDisplay').innerText = "ID: " + params.get('id');
+        document.getElementById('userDisplay').innerText = "ID: " + userId;
         document.getElementById('daysDisplay').innerText = days + " дней";
+
         if (parseInt(days) > 0) { 
             document.getElementById('statusDisplay').innerText = "● Активен"; 
             document.getElementById('statusDisplay').style.color = "#00ff00"; 
         }
 
+        // ЛОГИКА ГЛАВНОЙ КНОПКИ
         document.getElementById('rocketBtn').onclick = function() {
-            if (parseInt(days) <= 0) return tg.showAlert("Сначала купите подписку!");
-            
-            tg.showConfirm("Для подключения мы отправим вам кнопку запуска в чат. Нажмите ОК, чтобы получить её.", (ok) => {
-                if (ok) {
-                    // Отправляем сигнал боту прислать кнопку импорта
-                    tg.sendData(JSON.stringify({action: 'request_vpn_button'}));
-                    tg.close();
-                }
-            });
+            if (parseInt(days) <= 0) {
+                // Если дней нет, предлагаем тест
+                tg.showConfirm("У вас нет активной подписки. Хотите получить бесплатный тестовый доступ на 24 часа?", (ok) => {
+                    if (ok) {
+                        tg.sendData(JSON.stringify({action: 'get_free_test'}));
+                        tg.close();
+                    }
+                });
+            } else {
+                // Если дни есть, просто запрашиваем выдачу кнопки с ключом
+                tg.showConfirm("Для подключения мы отправим вам ключ и инструкции в чат. Продолжить?", (ok) => {
+                    if (ok) {
+                        tg.sendData(JSON.stringify({action: 'request_vpn_button'}));
+                        tg.close();
+                    }
+                });
+            }
         };
 
         function openTariffModal() { document.getElementById('tariffModal').classList.add('active'); }
@@ -101,11 +112,12 @@
         }
 
         function confirmBuy(m, p) {
-            if (parseFloat(balance) < p) return tg.showAlert("Недостаточно средств!");
+            if (parseFloat(balance) < p) return tg.showAlert("Недостаточно средств на балансе!");
             tg.sendData(JSON.stringify({action: "buy_subscription", months: m, price: p}));
             setTimeout(() => tg.close(), 100);
         }
 
+        // Звезды на фоне
         const container = document.getElementById('stars');
         for (let i = 0; i < 30; i++) {
             const star = document.createElement('div');
