@@ -3,70 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rocket VPN - Подключение</title>
+    <title>Rocket VPN - Настройка</title>
     <style>
-        body { background: #0f0c29; color: white; font-family: 'Segoe UI', sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
-        .card { background: rgba(255, 255, 255, 0.05); padding: 30px; border-radius: 25px; border: 1px solid #00dfd8; width: 85%; max-width: 400px; }
-        .loader { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid #00dfd8; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .btn { display: inline-block; background: #00dfd8; color: #0f0c29; padding: 15px 20px; text-decoration: none; border-radius: 12px; font-weight: bold; margin-top: 20px; width: 100%; box-sizing: border-box; }
-        p { font-size: 15px; line-height: 1.4; opacity: 0.9; }
+        body { background: #0b0e14; color: white; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
+        .container { background: #161b22; padding: 40px 25px; border-radius: 24px; border: 1px solid #30363d; width: 85%; max-width: 350px; }
+        .loader { width: 48px; height: 48px; border: 5px solid #FFF; border-bottom-color: #00dfd8; border-radius: 50%; display: inline-block; box-sizing: border-box; animation: rotation 1s linear infinite; }
+        @keyframes rotation { 0% { transform: rotate(0deg) } 100% { transform: rotate(360deg) } } 
+        h2 { font-size: 20px; margin-top: 20px; color: #00dfd8; }
+        p { font-size: 14px; color: #8b949e; line-height: 1.6; }
+        .btn { display: none; background: #00dfd8; color: #0b0e14; padding: 15px; text-decoration: none; border-radius: 12px; font-weight: bold; margin-top: 20px; }
     </style>
 </head>
 <body>
-
-    <div class="card">
-        <div id="loading">
-            <div class="loader"></div>
-            <h2>Копируем ключ...</h2>
-        </div>
-        
-        <div id="ready" style="display:none;">
-            <h2 style="color:#00dfd8">Ключ скопирован!</h2>
-            <p>Мы открываем приложение.<br>Просто нажмите <b>"Добавить" (+)</b> или <b>"Импортировать"</b> внутри программы.</p>
-            <a href="#" id="app-link" class="btn">ОТКРЫТЬ ПРИЛОЖЕНИЕ</a>
-        </div>
+    <div class="container">
+        <span class="loader"></span>
+        <h2 id="status">Настройка ключа...</h2>
+        <p id="msg">Копируем конфигурацию и открываем приложение</p>
+        <a href="#" id="openBtn" class="btn">ОТКРЫТЬ ПРИЛОЖЕНИЕ</a>
     </div>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        const base64Config = urlParams.get('enc');
-        
-        if (base64Config) {
-            const vlessLink = atob(base64Config);
-            const isAndroid = /Android/i.test(navigator.userAgent);
-            const appUrl = isAndroid ? "happ://" : "v2box://";
+        const enc = urlParams.get('enc');
 
-            // Функция копирования
-            function copyToClipboard(text) {
-                const textArea = document.createElement("textarea");
-                textArea.value = text;
-                document.body.appendChild(textArea);
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                } catch (err) {
-                    console.error('Ошибка копирования', err);
-                }
-                document.body.removeChild(textArea);
+        async function process() {
+            if (!enc) {
+                document.getElementById('status').innerText = "Ошибка";
+                return;
             }
 
-            // Выполняем
-            copyToClipboard(vlessLink);
+            const vlessLink = atob(enc);
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            const appUri = isAndroid ? "happ://" : "v2box://";
 
-            // Показываем интерфейс
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('ready').style.display = 'block';
-            document.getElementById('app-link').href = appUrl;
+            // Функция копирования
+            const el = document.createElement('textarea');
+            el.value = vlessLink;
+            el.setAttribute('readonly', '');
+            el.style.position = 'absolute';
+            el.style.left = '-9999px';
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
 
-            // Авто-переход через 1 секунду
+            // Небольшая пауза, чтобы система успела записать буфер
             setTimeout(() => {
-                window.location.href = appUrl;
-            }, 1000);
-            
-        } else {
-            document.body.innerHTML = "<h2>Ошибка: Ключ не найден</h2>";
+                document.getElementById('status').innerText = "Готово!";
+                document.getElementById('msg').innerHTML = "Конфигурация скопирована.<br>Нажмите <b>YES/IMPORT</b> в приложении.";
+                document.getElementById('openBtn').style.display = "block";
+                document.getElementById('openBtn').href = appUri;
+                
+                // Авто-запуск приложения
+                window.location.href = appUri;
+            }, 600);
         }
+
+        window.onload = process;
     </script>
 </body>
 </html>
