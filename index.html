@@ -6,91 +6,42 @@
     <title>ZOO VPN PREMIUM</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root {
-            --bg: #0f0c29;
-            --glass: rgba(255, 255, 255, 0.07);
-            --accent-pink: #ff0080;
-            --accent-cyan: #00dfd8;
-            --text: #ffffff;
-        }
-
-        body {
-            margin: 0; padding: 20px;
-            background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);
-            color: var(--text); font-family: 'Segoe UI', Roboto, sans-serif;
-            overflow: hidden; min-height: 100vh;
-        }
-
-        /* ЗВЕЗДЫ */
+        :root { --bg: #0f0c29; --glass: rgba(255, 255, 255, 0.07); --accent-pink: #ff0080; --accent-cyan: #00dfd8; --text: #ffffff; }
+        body { margin: 0; padding: 20px; background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e); color: var(--text); font-family: 'Segoe UI', sans-serif; overflow: hidden; min-height: 100vh; }
         .stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
         .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: move linear infinite; }
         @keyframes move { from { transform: translateY(100vh); } to { transform: translateY(-10vh); } }
-
-        /* КОНТЕНТ */
         .main-container { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 15px; transition: 0.3s; }
         .blur-bg { filter: blur(15px); pointer-events: none; }
-
-        .card-balance {
-            background: var(--glass); backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 0, 128, 0.3);
-            border-radius: 25px; padding: 25px; text-align: center;
-        }
-
-        .balance-val {
-            font-size: 48px; font-weight: 800;
-            background: linear-gradient(45deg, var(--accent-pink), var(--accent-cyan));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-
+        .card-balance { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255, 0, 128, 0.3); border-radius: 25px; padding: 25px; text-align: center; }
+        .balance-val { font-size: 48px; font-weight: 800; background: linear-gradient(45deg, var(--accent-pink), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .box { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 20px; }
         .box-title { font-size: 11px; opacity: 0.6; text-transform: uppercase; margin-bottom: 5px; }
         .box-data { font-size: 14px; font-weight: 600; }
-
-        .btn { border: none; padding: 20px; border-radius: 20px; font-size: 16px; font-weight: 800; color: white; cursor: pointer; transition: 0.3s; }
+        .btn { border: none; padding: 20px; border-radius: 20px; font-size: 16px; font-weight: 800; color: white; cursor: pointer; transition: 0.3s; width: 100%; }
         .btn-vpn { background: linear-gradient(45deg, #ff0080, #7928ca); box-shadow: 0 5px 20px rgba(255, 0, 128, 0.4); }
         .btn-pay { background: linear-gradient(45deg, #00dfd8, #007cf0); box-shadow: 0 5px 20px rgba(0, 223, 216, 0.3); }
-
-        /* МОДАЛКА */
-        .modal {
-            position: fixed; bottom: -100%; left: 0; width: 100%;
-            background: #1a1a2e; border-top: 2px solid var(--accent-cyan);
-            border-top-left-radius: 30px; border-top-right-radius: 30px;
-            padding: 30px 20px; z-index: 100; transition: 0.4s; box-sizing: border-box;
-        }
+        .modal { position: fixed; bottom: -100%; left: 0; width: 100%; background: #1a1a2e; border-top: 2px solid var(--accent-cyan); border-top-left-radius: 30px; border-top-right-radius: 30px; padding: 30px 20px; z-index: 100; transition: 0.4s; box-sizing: border-box; }
         .modal.active { bottom: 0; }
-
-        input {
-            width: 100%; padding: 15px; border-radius: 15px; border: 1px solid var(--accent-cyan);
-            background: rgba(255,255,255,0.05); color: white; font-size: 20px; text-align: center;
-            outline: none; margin-bottom: 20px; box-sizing: border-box;
-        }
-
-        .pay-option {
-            background: rgba(255,255,255,0.05); padding: 20px; border-radius: 20px;
-            display: flex; align-items: center; justify-content: space-between;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
+        input { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid var(--accent-cyan); background: rgba(255,255,255,0.05); color: white; font-size: 20px; text-align: center; outline: none; margin-bottom: 20px; box-sizing: border-box; }
+        .pay-option { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(255,255,255,0.1); }
     </style>
 </head>
 <body>
-
     <div class="stars-container" id="stars"></div>
-
     <div class="main-container" id="mainContent">
         <div class="card-balance">
             <div style="font-size: 14px; opacity: 0.8;">Ваш баланс</div>
-            <div class="balance-val">450.00 ₽</div>
-            <div style="font-size: 12px; margin-top: 10px; opacity: 0.6;">Доступно до 12 янв. 2026</div>
+            <div class="balance-val" id="balanceDisplay">0.00 ₽</div>
+            <div style="font-size: 11px; margin-top: 10px; opacity: 0.5;" id="userDisplay">ID: ---</div>
         </div>
-
         <div class="grid-info">
             <div class="box"><div class="box-title">Статус</div><div class="box-data">● Активен</div></div>
             <div class="box"><div class="box-title">Локация</div><div class="box-data">🇩🇪 Germany</div></div>
             <div class="box"><div class="box-title">Лимит</div><div class="box-data">12.4 / 100 GB</div></div>
             <div class="box"><div class="box-title">Дней</div><div class="box-data">26 дней</div></div>
         </div>
-
         <button class="btn btn-vpn" onclick="tgVpn()">🚀 ПОДКЛЮЧИТЬ VPN</button>
         <button class="btn btn-pay" onclick="openAmountModal()">💳 ПОПОЛНИТЬ БАЛАНС</button>
     </div>
@@ -98,15 +49,14 @@
     <div class="modal" id="amountModal">
         <div style="text-align:center; margin-bottom:15px; font-weight:700;">Сумма пополнения (₽)</div>
         <input type="number" id="sumInput" placeholder="Введите сумму">
-        <button class="btn btn-pay" style="width:100%" onclick="openPayMethods()">ДАЛЕЕ</button>
+        <button class="btn btn-pay" onclick="openPayMethods()">ДАЛЕЕ</button>
         <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Отмена</div>
     </div>
 
     <div class="modal" id="methodModal">
         <div style="text-align:center; margin-bottom:15px; font-weight:700;">Способ оплаты</div>
         <div class="pay-option" onclick="paySBP()">
-            <span style="font-weight:700;">Перевод СБП</span>
-            <span>📲</span>
+            <span style="font-weight:700;">Перевод СБП</span><span>📲</span>
         </div>
         <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Назад</div>
     </div>
@@ -116,6 +66,13 @@
         tg.expand();
         tg.ready();
 
+        // ПОЛУЧЕНИЕ ДАННЫХ ИЗ URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const balance = urlParams.get('balance') || "0.00";
+        const userId = urlParams.get('id') || "---";
+        document.getElementById('balanceDisplay').innerText = balance + " ₽";
+        document.getElementById('userDisplay').innerText = "ID: " + userId;
+
         function openAmountModal() {
             tg.HapticFeedback.impactOccurred('medium');
             document.getElementById('amountModal').classList.add('active');
@@ -124,37 +81,25 @@
 
         function openPayMethods() {
             let sum = document.getElementById('sumInput').value;
-            if (sum < 10) return alert('Минимальная сумма 10₽');
+            if (sum < 10) return tg.showAlert('Мин. сумма 10₽');
             document.getElementById('amountModal').classList.remove('active');
             document.getElementById('methodModal').classList.add('active');
         }
 
         function paySBP() {
             let sum = document.getElementById('sumInput').value;
-            tg.HapticFeedback.notificationOccurred('success');
-            
-            // Отправляем данные в бот
-            tg.sendData(JSON.stringify({
-                action: "pay_sbp",
-                amount: sum
-            }));
-            
-            // Закрываем приложение, чтобы бот ответил
+            tg.sendData(JSON.stringify({action: "pay_sbp", amount: sum}));
             setTimeout(() => { tg.close(); }, 150);
         }
 
         function closeAll() {
-            document.getElementById('amountModal').classList.remove('active');
-            document.getElementById('methodModal').classList.remove('active');
+            document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
             document.getElementById('mainContent').classList.remove('blur-bg');
         }
 
-        function tgVpn() {
-            tg.HapticFeedback.impactOccurred('heavy');
-            tg.showAlert('Генерация ключа...');
-        }
+        function tgVpn() { tg.showAlert('Ключ уже активирован в профиле!'); }
 
-        // Звезды
+        // ЗВЕЗДЫ
         const container = document.getElementById('stars');
         for (let i = 0; i < 40; i++) {
             const star = document.createElement('div');
@@ -162,7 +107,6 @@
             star.style.width = star.style.height = Math.random() * 3 + 'px';
             star.style.left = Math.random() * 100 + 'vw';
             star.style.animationDuration = Math.random() * 3 + 2 + 's';
-            star.style.animationDelay = Math.random() * 5 + 's';
             container.appendChild(star);
         }
     </script>
