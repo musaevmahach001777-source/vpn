@@ -16,9 +16,9 @@
         .card-balance { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255, 0, 128, 0.3); border-radius: 25px; padding: 25px; text-align: center; }
         .balance-val { font-size: 48px; font-weight: 800; background: linear-gradient(45deg, var(--accent-pink), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .box { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 20px; }
+        .box { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 20px; text-align: center; }
         .box-title { font-size: 11px; opacity: 0.6; text-transform: uppercase; margin-bottom: 5px; }
-        .box-data { font-size: 14px; font-weight: 600; }
+        .box-data { font-size: 16px; font-weight: 600; }
         .btn { border: none; padding: 20px; border-radius: 20px; font-size: 16px; font-weight: 800; color: white; cursor: pointer; transition: 0.3s; width: 100%; margin-bottom: 5px; }
         .btn-vpn { background: linear-gradient(45deg, #ff0080, #7928ca); box-shadow: 0 5px 20px rgba(255, 0, 128, 0.4); }
         .btn-pay { background: linear-gradient(45deg, #00dfd8, #007cf0); box-shadow: 0 5px 20px rgba(0, 223, 216, 0.3); }
@@ -39,9 +39,7 @@
         </div>
         <div class="grid-info">
             <div class="box"><div class="box-title">Статус</div><div class="box-data" id="statusDisplay" style="color:#ff4d4d">● Не активен</div></div>
-            <div class="box"><div class="box-title">Локация</div><div class="box-data">🇩🇪 Germany</div></div>
-            <div class="box"><div class="box-title">Лимит</div><div class="box-data">0 / 100 GB</div></div>
-            <div class="box"><div class="box-title">Дней</div><div class="box-data" id="daysDisplay">0 дней</div></div>
+            <div class="box"><div class="box-title">Доступно</div><div class="box-data" id="daysDisplay">0 дней</div></div>
         </div>
         <button class="btn btn-vpn" onclick="openTariffModal()">🚀 ВЫБРАТЬ ПОДПИСКУ</button>
         <button class="btn btn-pay" onclick="openAmountModal()">💳 ПОПОЛНИТЬ БАЛАНС</button>
@@ -93,7 +91,7 @@
         function closeAll() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('active')); document.getElementById('mainContent').classList.remove('blur-bg'); }
 
         function confirmBuy(months, price) {
-            if (parseFloat(balance) < price) return tg.showAlert(`Нужно: ${price}₽`);
+            if (parseFloat(balance) < price) return tg.showAlert(`Недостаточно средств! Нужно: ${price}₽`);
             tg.showConfirm(`Купить ${months} мес. за ${price}₽?`, (ok) => {
                 if (ok) { tg.sendData(JSON.stringify({action: "buy_subscription", months: months, price: price})); setTimeout(() => tg.close(), 100); }
             });
