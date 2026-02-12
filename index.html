@@ -14,6 +14,7 @@
         .main-container { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 15px; transition: 0.3s; }
         .blur-bg { filter: blur(15px); pointer-events: none; }
         .card-balance { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255, 0, 128, 0.3); border-radius: 25px; padding: 25px; text-align: center; }
+        /* Добавили ID для динамического обновления баланса */
         .balance-val { font-size: 48px; font-weight: 800; background: linear-gradient(45deg, var(--accent-pink), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .box { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 15px; border-radius: 20px; }
@@ -33,7 +34,7 @@
     <div class="main-container" id="mainContent">
         <div class="card-balance">
             <div style="font-size: 14px; opacity: 0.8;">Ваш баланс</div>
-            <div class="balance-val" id="balanceDisplay">0.00 ₽</div>
+            <div class="balance-val" id="balanceDisplay">450.00 ₽</div>
             <div style="font-size: 11px; margin-top: 10px; opacity: 0.5;" id="userDisplay">ID: ---</div>
         </div>
         <div class="grid-info">
@@ -66,12 +67,17 @@
         tg.expand();
         tg.ready();
 
-        // ПОЛУЧЕНИЕ ДАННЫХ ИЗ URL
+        // ЛОГИКА ОБНОВЛЕНИЯ ДАННЫХ ИЗ БОТА
         const urlParams = new URLSearchParams(window.location.search);
-        const balance = urlParams.get('balance') || "0.00";
-        const userId = urlParams.get('id') || "---";
-        document.getElementById('balanceDisplay').innerText = balance + " ₽";
-        document.getElementById('userDisplay').innerText = "ID: " + userId;
+        const balance = urlParams.get('balance');
+        const userId = urlParams.get('id');
+
+        if (balance) {
+            document.getElementById('balanceDisplay').innerText = balance + " ₽";
+        }
+        if (userId) {
+            document.getElementById('userDisplay').innerText = "ID: " + userId;
+        }
 
         function openAmountModal() {
             tg.HapticFeedback.impactOccurred('medium');
