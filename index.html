@@ -47,15 +47,16 @@
     </div>
 
     <div class="modal" id="tariffModal">
+        <div style="text-align:center; margin-bottom:20px; font-weight:700;">ТАРИФЫ</div>
         <div class="pay-option" onclick="confirmBuy(1, 299)">1 Месяц - 299 ₽</div>
         <div class="pay-option" onclick="confirmBuy(3, 834)">3 Месяца - 834 ₽</div>
-        <div style="text-align:center; margin-top:15px;" onclick="closeAll()">Закрыть</div>
+        <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Закрыть</div>
     </div>
     
     <div class="modal" id="amountModal">
-        <input type="number" id="sumInput" placeholder="Сумма">
+        <input type="number" id="sumInput" placeholder="Сумма (₽)">
         <button class="btn btn-pay" onclick="tg.sendData(JSON.stringify({action: 'pay', amount: document.getElementById('sumInput').value})); tg.close();">ПОПОЛНИТЬ</button>
-        <div style="text-align:center; margin-top:15px;" onclick="closeAll()">Отмена</div>
+        <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Отмена</div>
     </div>
 
     <script>
@@ -70,28 +71,39 @@
         document.getElementById('balanceDisplay').innerText = balance + " ₽";
         document.getElementById('userDisplay').innerText = "ID: " + params.get('id');
         document.getElementById('daysDisplay').innerText = days + " дней";
-        if (parseInt(days) > 0) { document.getElementById('statusDisplay').innerText = "● Активен"; document.getElementById('statusDisplay').style.color = "#00ff00"; }
+        if (parseInt(days) > 0) { 
+            document.getElementById('statusDisplay').innerText = "● Активен"; 
+            document.getElementById('statusDisplay').style.color = "#00ff00"; 
+        }
 
         function connectRocket() {
             if (parseInt(days) <= 0) return tg.showAlert("Сначала купите подписку!");
+            
+            // Ссылка на конкретное приложение в App Store
+            const appStoreUrl = "https://apps.apple.com/us/app/v2raytun/id6476628951?l=ru";
+            
+            // Пытаемся открыть приложение через ссылку ключа
             window.location.href = vlessLink;
+
+            // Если через 2.5 секунды мы всё еще в браузере - предлагаем скачать
             setTimeout(() => {
-                tg.showConfirm("Не открылось? Установите V2RayTune в App Store.", (ok) => {
-                    if (ok) tg.openLink("https://apps.apple.com/us/app/v2raytune/id6470716681");
+                tg.showConfirm("Приложение V2rayTun не открылось. Установить его из App Store?", (ok) => {
+                    if (ok) tg.openLink(appStoreUrl);
                 });
-            }, 2000);
+            }, 2500);
         }
 
         function openTariffModal() { document.getElementById('tariffModal').classList.add('active'); }
         function openAmountModal() { document.getElementById('amountModal').classList.add('active'); }
         function closeAll() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('active')); }
+        
         function confirmBuy(m, p) {
             if (parseFloat(balance) < p) return tg.showAlert("Недостаточно средств!");
             tg.sendData(JSON.stringify({action: "buy_subscription", months: m, price: p}));
             setTimeout(() => tg.close(), 100);
         }
 
-        // Звезды
+        // Фон со звездами
         const container = document.getElementById('stars');
         for (let i = 0; i < 30; i++) {
             const star = document.createElement('div');
