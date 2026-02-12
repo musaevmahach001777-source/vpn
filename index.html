@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZOO VPN Panel</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { background-color: #1a1a1a; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
+        .card { background: #2b2b2b; border-radius: 15px; padding: 20px; width: 90%; max-width: 350px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); margin-top: 20px; }
+        .balance-title { color: #888; font-size: 14px; }
+        .balance-value { font-size: 36px; font-weight: bold; color: #00d2ff; margin: 10px 0; }
+        .btn { background: #0088cc; color: white; border: none; padding: 18px; border-radius: 12px; width: 100%; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="balance-title">Мой баланс</div>
+        <div class="balance-value">450.00 ₽</div>
+    </div>
+    <button class="btn">🚀 ПОДКЛЮЧИТЬ VPN</button>
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+    </script>
+</body>
+</html>
