@@ -79,18 +79,24 @@
         function connectRocket() {
             if (parseInt(days) <= 0) return tg.showAlert("Сначала купите подписку!");
             
-            // Ссылка на конкретное приложение в App Store
             const appStoreUrl = "https://apps.apple.com/us/app/v2raytun/id6476628951?l=ru";
             
-            // Пытаемся открыть приложение через ссылку ключа
-            window.location.href = vlessLink;
+            // Специальная схема для V2rayTun, чтобы он гарантированно открылся
+            // Мы пробуем сначала прямой импорт через схему приложения
+            const deepLink = "v2raytun://import/" + vlessLink;
+            
+            // Фикс для iOS: используем скрытый iframe или прямой переход
+            let lastTime = Date.now();
+            window.location.href = deepLink;
 
-            // Если через 2.5 секунды мы всё еще в браузере - предлагаем скачать
+            // Если приложение не открылось за 2 секунды (фокус страницы не потерян)
             setTimeout(() => {
-                tg.showConfirm("Приложение V2rayTun не открылось. Установить его из App Store?", (ok) => {
-                    if (ok) tg.openLink(appStoreUrl);
-                });
-            }, 2500);
+                if (Date.now() - lastTime < 3000) {
+                    tg.showConfirm("Открыть страницу установки в App Store?", (ok) => {
+                        if (ok) tg.openLink(appStoreUrl);
+                    });
+                }
+            }, 2000);
         }
 
         function openTariffModal() { document.getElementById('tariffModal').classList.add('active'); }
@@ -103,7 +109,6 @@
             setTimeout(() => tg.close(), 100);
         }
 
-        // Фон со звездами
         const container = document.getElementById('stars');
         for (let i = 0; i < 30; i++) {
             const star = document.createElement('div');
