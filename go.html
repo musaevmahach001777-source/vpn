@@ -7,22 +7,16 @@
     <style>
         body { background: #0f0c29; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
         .loader-box { padding: 20px; }
-        .btn-choice { display: block; background: #00dfd8; color: #0f0c29; padding: 15px 25px; text-decoration: none; border-radius: 12px; font-weight: bold; margin: 10px auto; width: 250px; }
-        .btn-happ { background: #f093fb; }
-        h2 { font-size: 18px; color: #fff; margin-bottom: 25px; }
-        .hint { font-size: 12px; opacity: 0.6; margin-top: 20px; }
+        .spinner { border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid #00dfd8; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .btn-manual { display: none; background: #00dfd8; color: #0f0c29; padding: 15px; text-decoration: none; border-radius: 12px; font-weight: bold; margin-top: 20px; }
     </style>
 </head>
 <body>
-
     <div class="loader-box">
-        <h2 id="status">Выберите ваше приложение:</h2>
-        
-        <a href="#" id="happ-link" class="btn-choice btn-happ">ОТКРЫТЬ В HAPP</a>
-        
-        <a href="#" id="v2box-link" class="btn-choice">ОТКРЫТЬ В V2BOX</a>
-
-        <p class="hint">Если приложение установлено, импорт начнется автоматически после нажатия.</p>
+        <div class="spinner"></div>
+        <h2 id="status">Настраиваем VPN...</h2>
+        <a href="#" id="manual-link" class="btn-manual">НАЖМИ ДЛЯ ИМПОРТА</a>
     </div>
 
     <script>
@@ -31,25 +25,30 @@
         
         if (base64Config) {
             const vlessLink = atob(base64Config);
-            
-            // Ссылки для разных приложений
-            const v2boxUrl = "v2box://install-config?url=" + encodeURIComponent(vlessLink);
-            const happUrl = "happ://import/" + vlessLink; // Happ понимает прямую ссылку без кодирования всего URL
-
-            document.getElementById('v2box-link').href = v2boxUrl;
-            document.getElementById('happ-link').href = happUrl;
-
-            // Авто-попытка открыть (сначала пробуем Happ, так как он стабильнее)
             const isAndroid = /Android/i.test(navigator.userAgent);
+            
+            let finalUrl;
             if (isAndroid) {
-                window.location.href = happUrl;
-                // Если через секунду не ушли с сайта, пробуем v2box
-                setTimeout(() => { window.location.href = v2boxUrl; }, 1000);
+                // Прямой импорт для Happ на Android
+                finalUrl = "happ://import/" + vlessLink;
             } else {
-                window.location.href = v2boxUrl;
+                // Формат для v2Box (iOS)
+                finalUrl = "v2box://install-config?url=" + encodeURIComponent(vlessLink);
             }
+
+            // Пытаемся открыть сразу
+            window.location.href = finalUrl;
+
+            // Если не сработало за 2 секунды - показываем кнопку
+            setTimeout(() => {
+                document.getElementById('status').innerText = "Нажмите кнопку ниже:";
+                const btn = document.getElementById('manual-link');
+                btn.href = finalUrl;
+                btn.style.display = "inline-block";
+            }, 2000);
+
         } else {
-            document.getElementById('status').innerText = "Ошибка: Ключ не найден";
+            document.getElementById('status').innerText = "Ключ не найден";
         }
     </script>
 </body>
