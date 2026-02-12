@@ -18,7 +18,7 @@
             padding: 20px; 
             background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e); 
             color: var(--text); 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            font-family: 'Segoe UI', sans-serif; 
             overflow: hidden; 
             min-height: 100vh; 
         }
@@ -55,7 +55,6 @@
             border-radius: 25px; 
             padding: 20px; 
             text-align: center; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .balance-val { 
             font-size: 42px; 
@@ -77,16 +76,8 @@
             border-radius: 20px; 
             text-align: center; 
         }
-        .box-title { 
-            font-size: 10px; 
-            opacity: 0.6; 
-            text-transform: uppercase; 
-            margin-bottom: 3px; 
-        }
-        .box-data { 
-            font-size: 14px; 
-            font-weight: 600; 
-        }
+        .box-title { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-bottom: 3px; }
+        .box-data { font-size: 14px; font-weight: 600; }
         .btn { 
             border: none; 
             padding: 18px; 
@@ -95,30 +86,19 @@
             font-weight: 800; 
             color: white; 
             cursor: pointer; 
-            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            transition: 0.3s; 
             width: 100%; 
             margin-top: 5px; 
-            outline: none;
-        }
-        .btn:active {
-            transform: scale(0.95);
         }
         .btn-rocket { 
             background: linear-gradient(45deg, #00c6ff, #0072ff); 
             box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4); 
             animation: pulse 2s infinite; 
         }
-        .btn-vpn { 
-            background: linear-gradient(45deg, #ff0080, #7928ca); 
-        }
-        .btn-pay { 
-            background: linear-gradient(45deg, #00dfd8, #007cf0); 
-        }
-        @keyframes pulse { 
-            0% { transform: scale(1); } 
-            50% { transform: scale(1.03); } 
-            100% { transform: scale(1); } 
-        }
+        .btn-vpn { background: linear-gradient(45deg, #ff0080, #7928ca); }
+        .btn-pay { background: linear-gradient(45deg, #00dfd8, #007cf0); }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+        
         .modal { 
             position: fixed; 
             bottom: -100%; 
@@ -133,9 +113,7 @@
             transition: 0.4s; 
             box-sizing: border-box; 
         }
-        .modal.active { 
-            bottom: 0; 
-        }
+        .modal.active { bottom: 0; }
         input { 
             width: 100%; 
             padding: 15px; 
@@ -177,7 +155,9 @@
                 <div class="box-data" id="daysDisplay">0 дней</div>
             </div>
         </div>
-        <button class="btn btn-rocket" onclick="connectRocket()">🚀 ЗАПУСТИТЬ РАКЕТУ</button>
+        
+        <button class="btn btn-rocket" onclick="connectRocket()">🚀 ЗАПУСТИТЬ VPN (V2Box)</button>
+        
         <button class="btn btn-vpn" onclick="openTariffModal()">💎 ВЫБРАТЬ ТАРИФ</button>
         <button class="btn btn-pay" onclick="openAmountModal()">💳 ПОПОЛНИТЬ БАЛАНС</button>
     </div>
@@ -207,79 +187,67 @@
         document.getElementById('balanceDisplay').innerText = balance + " ₽";
         document.getElementById('userDisplay').innerText = "ID: " + params.get('id');
         document.getElementById('daysDisplay').innerText = days + " дней";
-        
         if (parseInt(days) > 0) { 
             document.getElementById('statusDisplay').innerText = "● Активен"; 
             document.getElementById('statusDisplay').style.color = "#00ff00"; 
         }
 
         function connectRocket() {
-            if (parseInt(days) <= 0) {
-                return tg.showAlert("Сначала купите подписку!");
-            }
+            if (parseInt(days) <= 0) return tg.showAlert("Сначала купите подписку!");
             
-            // 1. Копируем чистый код в буфер (решает ошибку Invalid Port)
-            const el = document.createElement('textarea');
-            el.value = vlessLink;
-            el.setAttribute('readonly', '');
-            el.style.position = 'absolute';
-            el.style.left = '-9999px';
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
+            // Ссылка на V2Box в App Store
+            const appStoreUrl = "https://apps.apple.com/us/app/v2box-v2ray-client/id6446814690?l=ru";
+            
+            // Специальный формат ссылки для V2Box, чтобы он сразу импортировал конфиг
+            const v2boxDeepLink = "v2box://install-config?url=" + encodeURIComponent(vlessLink);
+            
+            // Пытаемся открыть приложение
+            window.location.href = v2boxDeepLink;
 
-            // 2. Ссылка на приложение в App Store
-            const appStoreUrl = "https://apps.apple.com/us/app/v2raytun/id6476628951?l=ru";
-
-            // 3. Пытаемся открыть приложение через протокол ссылки
-            window.location.replace(vlessLink);
-
-            // 4. Инструкция для клиента
+            // Если через 2 секунды юзер всё еще тут, значит приложения нет
             setTimeout(() => {
-                tg.showPopup({
-                    title: "Ракета готова!",
-                    message: "Код скопирован в буфер.\n\nЕсли приложение не открылось:\n1. Зайди в V2rayTun\n2. Нажми 'Добавить из буфера'",
-                    buttons: [
-                        {id: "ok", type: "default", text: "ОК"},
-                        {id: "download", type: "destructive", text: "Скачать V2rayTun"}
-                    ]
-                }, (buttonId) => {
-                    if (buttonId === "download") {
-                        tg.openLink(appStoreUrl);
-                    }
-                });
-            }, 1500);
+                if (document.visibilityState === 'visible') {
+                    tg.showPopup({
+                        title: "V2Box не открылся",
+                        message: "Если у вас не скачано приложение — скачайте его. Если скачано — попробуйте еще раз или скопируйте код вручную.",
+                        buttons: [
+                            {id: "download", type: "default", text: "Скачать V2Box"},
+                            {id: "copy", type: "default", text: "Скопировать код"},
+                            {id: "cancel", type: "destructive", text: "Закрыть"}
+                        ]
+                    }, (buttonId) => {
+                        if (buttonId === "download") tg.openLink(appStoreUrl);
+                        if (buttonId === "copy") {
+                            const el = document.createElement('textarea');
+                            el.value = vlessLink;
+                            document.body.appendChild(el);
+                            el.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(el);
+                            tg.showAlert("Код скопирован в буфер!");
+                        }
+                    });
+                }
+            }, 2000);
         }
 
-        function openTariffModal() { 
-            document.getElementById('tariffModal').classList.add('active'); 
-        }
-        
-        function openAmountModal() { 
-            document.getElementById('amountModal').classList.add('active'); 
-        }
-        
-        function closeAll() { 
-            document.querySelectorAll('.modal').forEach(m => m.classList.remove('active')); 
-        }
+        function openTariffModal() { document.getElementById('tariffModal').classList.add('active'); }
+        function openAmountModal() { document.getElementById('amountModal').classList.add('active'); }
+        function closeAll() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('active')); }
         
         function sendPayment() {
             const val = document.getElementById('sumInput').value;
-            if(!val || val <= 0) return tg.showAlert("Введите сумму");
+            if(!val) return;
             tg.sendData(JSON.stringify({action: 'pay', amount: val}));
             tg.close();
         }
 
         function confirmBuy(m, p) {
-            if (parseFloat(balance) < p) {
-                return tg.showAlert("Недостаточно средств на балансе!");
-            }
+            if (parseFloat(balance) < p) return tg.showAlert("Недостаточно средств!");
             tg.sendData(JSON.stringify({action: "buy_subscription", months: m, price: p}));
             setTimeout(() => tg.close(), 100);
         }
 
-        // Анимация звезд
         const container = document.getElementById('stars');
         for (let i = 0; i < 30; i++) {
             const star = document.createElement('div');
@@ -287,7 +255,6 @@
             star.style.width = star.style.height = Math.random() * 2 + 'px';
             star.style.left = Math.random() * 100 + 'vw';
             star.style.animationDuration = Math.random() * 3 + 2 + 's';
-            star.style.animationDelay = Math.random() * 5 + 's';
             container.appendChild(star);
         }
     </script>
