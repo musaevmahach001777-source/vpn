@@ -2,167 +2,64 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ROCKET VPN</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ZOO VPN PREMIUM</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { 
-            --bg: #0a0b10; 
-            --card-bg: #161922;
-            --accent: #007aff; 
-            --text: #ffffff; 
-            --border: rgba(255, 255, 255, 0.08);
-        }
-        
-        body { 
-            margin: 0; 
-            padding: 20px; 
-            background: var(--bg); 
-            color: var(--text); 
-            font-family: -apple-system, system-ui, sans-serif; 
-            overflow: hidden; 
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
-
-        .main-container { 
-            display: flex; 
-            flex-direction: column; 
-            gap: 12px; 
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        .card-balance { 
-            background: var(--card-bg); 
-            border: 1px solid var(--border); 
-            border-radius: 20px; 
-            padding: 24px; 
-            text-align: center;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        }
-
-        .balance-val { 
-            font-size: 38px; 
-            font-weight: 700; 
-            color: var(--accent);
-            margin: 5px 0;
-        }
-
-        .grid-info { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 10px; 
-        }
-
-        .box { 
-            background: var(--card-bg); 
-            border: 1px solid var(--border); 
-            padding: 15px; 
-            border-radius: 18px; 
-            text-align: center; 
-        }
-
-        .box-title { font-size: 11px; opacity: 0.5; text-transform: uppercase; margin-bottom: 4px; }
-        .box-data { font-size: 15px; font-weight: 600; }
-
-        .btn { 
-            border: none; 
-            padding: 18px; 
-            border-radius: 16px; 
-            font-size: 15px; 
-            font-weight: 700; 
-            color: white; 
-            cursor: pointer; 
-            width: 100%; 
-            transition: opacity 0.2s;
-            -webkit-tap-highlight-color: transparent; 
-        }
-
-        .btn:active { opacity: 0.8; }
-
-        .btn-rocket { background: var(--accent); }
-        .btn-test { background: #242835; border: 1px solid var(--border); }
-        .btn-vpn { background: #1c1f2a; border: 1px solid var(--accent); color: var(--accent); }
-        .btn-pay { background: #ffffff; color: #000000; }
-
-        .modal { 
-            position: fixed; 
-            bottom: -100%; 
-            left: 0; 
-            width: 100%; 
-            background: #161922; 
-            border-top: 1px solid var(--border); 
-            border-radius: 24px 24px 0 0; 
-            padding: 25px 20px; 
-            z-index: 100; 
-            transition: 0.3s cubic-bezier(0, 0, 0.2, 1); 
-            box-sizing: border-box; 
-        }
+        :root { --bg: #0f0c29; --glass: rgba(255, 255, 255, 0.07); --accent-pink: #ff0080; --accent-cyan: #00dfd8; --text: #ffffff; }
+        body { margin: 0; padding: 20px; background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e); color: var(--text); font-family: 'Segoe UI', sans-serif; overflow: hidden; min-height: 100vh; }
+        .stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: move linear infinite; }
+        @keyframes move { from { transform: translateY(100vh); } to { transform: translateY(-10vh); } }
+        .main-container { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; }
+        .card-balance { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255, 0, 128, 0.3); border-radius: 25px; padding: 20px; text-align: center; }
+        .balance-val { font-size: 42px; font-weight: 800; background: linear-gradient(45deg, var(--accent-pink), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .box { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 20px; text-align: center; }
+        .box-title { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-bottom: 3px; }
+        .box-data { font-size: 14px; font-weight: 600; }
+        .btn { border: none; padding: 18px; border-radius: 20px; font-size: 15px; font-weight: 800; color: white; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 5px; -webkit-tap-highlight-color: transparent; }
+        .btn-rocket { background: linear-gradient(45deg, #00c6ff, #0072ff); box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4); animation: pulse 2s infinite; }
+        .btn-test { background: linear-gradient(45deg, #f093fb, #f5576c); border: 1px solid rgba(255,255,255,0.2); }
+        .btn-vpn { background: linear-gradient(45deg, #ff0080, #7928ca); }
+        .btn-pay { background: linear-gradient(45deg, #00dfd8, #007cf0); }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+        .modal { position: fixed; bottom: -100%; left: 0; width: 100%; background: #1a1a2e; border-top: 2px solid var(--accent-cyan); border-top-left-radius: 30px; border-top-right-radius: 30px; padding: 25px 20px; z-index: 100; transition: 0.4s; box-sizing: border-box; }
         .modal.active { bottom: 0; }
-
-        input { 
-            width: 100%; 
-            padding: 16px; 
-            border-radius: 12px; 
-            border: 1px solid var(--border); 
-            background: #0a0b10; 
-            color: white; 
-            font-size: 18px; 
-            text-align: center; 
-            margin-bottom: 15px; 
-            box-sizing: border-box; 
-        }
-
-        .pay-option { 
-            background: #242835; 
-            padding: 16px; 
-            border-radius: 14px; 
-            display: flex; 
-            justify-content: space-between; 
-            margin-bottom: 8px; 
-            border: 1px solid var(--border);
-        }
+        input { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid var(--accent-cyan); background: rgba(255,255,255,0.05); color: white; font-size: 20px; text-align: center; margin-bottom: 20px; box-sizing: border-box; }
+        .pay-option { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
     </style>
 </head>
 <body>
+    <div class="stars-container" id="stars"></div>
     <div class="main-container">
         <div class="card-balance">
-            <div style="font-size: 13px; opacity: 0.6;">Баланс</div>
+            <div style="font-size: 13px;">Ваш баланс</div>
             <div class="balance-val" id="balanceDisplay">0.00 ₽</div>
-            <div style="font-size: 11px; opacity: 0.4;" id="userDisplay">ID: ---</div>
+            <div style="font-size: 10px; opacity: 0.5;" id="userDisplay">ID: ---</div>
         </div>
-
         <div class="grid-info">
-            <div class="box">
-                <div class="box-title">Статус</div>
-                <div class="box-data" id="statusDisplay" style="color:#ff4d4d">● Выключен</div>
-            </div>
-            <div class="box">
-                <div class="box-title">Срок</div>
-                <div class="box-data" id="daysDisplay">0 дней</div>
-            </div>
+            <div class="box"><div class="box-title">Статус</div><div class="box-data" id="statusDisplay" style="color:#ff4d4d">● Не активен</div></div>
+            <div class="box"><div class="box-title">Доступно</div><div class="box-data" id="daysDisplay">0 дней</div></div>
         </div>
         
-        <button class="btn btn-rocket" id="rocketBtn">Подключить VPN</button>
-        <button class="btn btn-test" id="testBtn">Попробовать 24 часа</button>
+        <button class="btn btn-rocket" id="rocketBtn">🚀 ПОДКЛЮЧИТЬ VPN</button>
+        <button class="btn btn-test" id="testBtn">🎁 ТЕСТОВЫЙ ПЕРИОД (24ч)</button>
         
-        <div style="margin-top: 10px; height: 1px; background: var(--border);"></div>
-        
-        <button class="btn btn-vpn" onclick="openTariffModal()">Выбрать тариф</button>
-        <button class="btn btn-pay" onclick="openAmountModal()">Пополнить баланс</button>
+        <button class="btn btn-vpn" onclick="openTariffModal()">💎 ВЫБРАТЬ ТАРИФ</button>
+        <button class="btn btn-pay" onclick="openAmountModal()">💳 ПОПОЛНИТЬ БАЛАНС</button>
     </div>
 
     <div class="modal" id="tariffModal">
-        <div style="text-align:center; margin-bottom:20px; font-weight:600;">ТАРИФНЫЕ ПЛАНЫ</div>
-        <div class="pay-option" onclick="confirmBuy(1, 299)"><span>1 Месяц</span> <b>299 ₽</b></div>
-        <div class="pay-option" onclick="confirmBuy(3, 834)"><span>3 Месяца</span> <b>834 ₽</b></div>
+        <div style="text-align:center; margin-bottom:20px; font-weight:700;">ТАРИФЫ</div>
+        <div class="pay-option" onclick="confirmBuy(1, 299)">1 Месяц - 299 ₽</div>
+        <div class="pay-option" onclick="confirmBuy(3, 834)">3 Месяца - 834 ₽</div>
         <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Закрыть</div>
     </div>
     
     <div class="modal" id="amountModal">
-        <input type="number" id="sumInput" placeholder="Сумма пополнения" inputmode="numeric">
-        <button class="btn btn-pay" onclick="sendPayment()">Далее</button>
+        <input type="number" id="sumInput" placeholder="Сумма (₽)">
+        <button class="btn btn-pay" onclick="sendPayment()">ПОПОЛНИТЬ</button>
         <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Отмена</div>
     </div>
 
@@ -181,23 +78,37 @@
 
         if (parseInt(days) > 0) { 
             document.getElementById('statusDisplay').innerText = "● Активен"; 
-            document.getElementById('statusDisplay').style.color = "#34c759"; 
+            document.getElementById('statusDisplay').style.color = "#00ff00"; 
+            // Скрываем кнопку теста, если подписка уже активна
             document.getElementById('testBtn').style.display = "none";
         }
 
+        // ЛОГИКА ТЕСТОВОГО ПЕРИОДА
         document.getElementById('testBtn').onclick = function() {
-            tg.showConfirm("Активировать тест?", (ok) => {
-                if (ok) { tg.sendData(JSON.stringify({action: 'get_free_test'})); tg.close(); }
+            tg.showConfirm("Получить бесплатный доступ на 24 часа?", (ok) => {
+                if (ok) {
+                    tg.sendData(JSON.stringify({action: 'get_free_test'}));
+                    tg.close();
+                }
             });
         };
 
+        // ЛОГИКА ГЛАВНОЙ КНОПКИ
         document.getElementById('rocketBtn').onclick = function() {
             if (parseInt(days) <= 0) {
-                tg.showConfirm("Нет подписки. Включить тест?", (ok) => {
-                    if (ok) { tg.sendData(JSON.stringify({action: 'get_free_test'})); tg.close(); }
+                tg.showConfirm("У вас нет активной подписки. Хотите получить бесплатный тестовый доступ на 24 часа?", (ok) => {
+                    if (ok) {
+                        tg.sendData(JSON.stringify({action: 'get_free_test'}));
+                        tg.close();
+                    }
                 });
             } else {
-                tg.sendData(JSON.stringify({action: 'request_vpn_button'})); tg.close();
+                tg.showConfirm("Для подключения мы отправим вам ключ и инструкции в чат. Продолжить?", (ok) => {
+                    if (ok) {
+                        tg.sendData(JSON.stringify({action: 'request_vpn_button'}));
+                        tg.close();
+                    }
+                });
             }
         };
 
@@ -213,9 +124,19 @@
         }
 
         function confirmBuy(m, p) {
-            if (parseFloat(balance) < p) return tg.showAlert("Недостаточно средств");
+            if (parseFloat(balance) < p) return tg.showAlert("Недостаточно средств на балансе!");
             tg.sendData(JSON.stringify({action: "buy_subscription", months: m, price: p}));
-            tg.close();
+            setTimeout(() => tg.close(), 100);
+        }
+
+        const container = document.getElementById('stars');
+        for (let i = 0; i < 30; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.width = star.style.height = Math.random() * 2 + 'px';
+            star.style.left = Math.random() * 100 + 'vw';
+            star.style.animationDuration = Math.random() * 3 + 2 + 's';
+            container.appendChild(star);
         }
     </script>
 </body>
