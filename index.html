@@ -6,11 +6,16 @@
     <title>ZOO VPN PREMIUM</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --bg: #0f0c29; --glass: rgba(255, 255, 255, 0.07); --btn-glass: rgba(255, 255, 255, 0.12); --accent-pink: #ff0080; --accent-cyan: #00dfd8; --text: #ffffff; }
+        :root { --bg: #0f0c29; --glass: rgba(255, 255, 255, 0.07); --accent-pink: #ff0080; --accent-cyan: #00dfd8; --text: #ffffff; }
         body { margin: 0; padding: 20px; background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e); color: var(--text); font-family: 'Segoe UI', sans-serif; overflow: hidden; min-height: 100vh; }
+        
+        /* Фон со звездами и ракетами */
         .stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
         .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: move linear infinite; }
-        @keyframes move { from { transform: translateY(100vh); } to { transform: translateY(-10vh); } }
+        .mini-rocket { position: absolute; font-size: 12px; opacity: 0.3; filter: grayscale(1); animation: move linear infinite; }
+        
+        @keyframes move { from { transform: translateY(105vh) rotate(-45deg); } to { transform: translateY(-10vh) rotate(-45deg); } }
+        
         .main-container { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; }
         .card-balance { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255, 0, 128, 0.3); border-radius: 25px; padding: 20px; text-align: center; }
         .balance-val { font-size: 42px; font-weight: 800; background: linear-gradient(45deg, var(--accent-pink), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
@@ -19,17 +24,17 @@
         .box-title { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-bottom: 3px; }
         .box-data { font-size: 14px; font-weight: 600; }
         
-        /* Стеклянные кнопки */
-        .btn { border: 1px solid rgba(255, 255, 255, 0.2); padding: 18px; border-radius: 20px; font-size: 15px; font-weight: 800; color: white; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 5px; -webkit-tap-highlight-color: transparent; backdrop-filter: blur(10px); background: var(--btn-glass); }
-        .btn-test { border-color: rgba(240, 147, 251, 0.5); box-shadow: 0 4px 15px rgba(240, 147, 251, 0.2); }
-        .btn-rocket { border-color: rgba(0, 198, 255, 0.5); box-shadow: 0 5px 15px rgba(0, 114, 255, 0.3); animation: pulse 2s infinite; }
-        .btn-vpn { border-color: rgba(255, 0, 128, 0.5); }
-        .btn-pay { border-color: rgba(0, 223, 216, 0.5); }
+        /* Кнопки с возвращенными цветами и эффектом стекла */
+        .btn { border: none; padding: 18px; border-radius: 20px; font-size: 15px; font-weight: 800; color: white; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 5px; -webkit-tap-highlight-color: transparent; backdrop-filter: blur(8px); }
+        .btn-test { background: linear-gradient(45deg, rgba(240, 147, 251, 0.8), rgba(245, 87, 108, 0.8)); border: 1px solid rgba(255,255,255,0.2); }
+        .btn-rocket { background: linear-gradient(45deg, rgba(0, 198, 255, 0.8), rgba(0, 114, 255, 0.8)); box-shadow: 0 5px 15px rgba(0, 114, 255, 0.3); animation: pulse 2s infinite; }
+        .btn-vpn { background: linear-gradient(45deg, rgba(255, 0, 128, 0.8), rgba(121, 40, 202, 0.8)); }
+        .btn-pay { background: linear-gradient(45deg, rgba(0, 223, 216, 0.8), rgba(0, 124, 240, 0.8)); }
         
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
         
-        /* Анимация ракеты */
-        #rocket-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 12, 41, 0.9); display: none; justify-content: center; align-items: center; z-index: 1000; flex-direction: column; }
+        /* Финальная анимация взлета */
+        #rocket-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 12, 41, 0.9); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .rocket-anim { font-size: 80px; animation: launch 1.2s ease-in forwards; }
         @keyframes launch { 0% { transform: translateY(100px) scale(0.5); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-100vh) scale(1.5); opacity: 0; } }
 
@@ -141,14 +146,19 @@
             setTimeout(() => tg.close(), 100);
         }
 
+        // Генерация звезд и мини-ракет
         const container = document.getElementById('stars');
-        for (let i = 0; i < 30; i++) {
-            const star = document.createElement('div');
-            star.className = 'star';
-            star.style.width = star.style.height = Math.random() * 2 + 'px';
-            star.style.left = Math.random() * 100 + 'vw';
-            star.style.animationDuration = Math.random() * 3 + 2 + 's';
-            container.appendChild(star);
+        for (let i = 0; i < 35; i++) {
+            const isRocket = i % 12 === 0; // Каждая 12-я частица — ракета
+            const el = document.createElement('div');
+            el.className = isRocket ? 'mini-rocket' : 'star';
+            if (isRocket) el.innerText = '🚀';
+            
+            el.style.width = el.style.height = isRocket ? 'auto' : Math.random() * 2 + 'px';
+            el.style.left = Math.random() * 100 + 'vw';
+            el.style.animationDuration = Math.random() * 4 + 3 + 's';
+            el.style.animationDelay = Math.random() * 5 + 's';
+            container.appendChild(el);
         }
     </script>
 </body>
