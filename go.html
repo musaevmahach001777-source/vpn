@@ -3,24 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rocket VPN - Подключение</title>
+    <title>Rocket VPN</title>
     <style>
-        body { background: #0b0e14; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
-        .btn { background: #00dfd8; color: #000; padding: 20px; text-decoration: none; border-radius: 15px; font-weight: bold; width: 80%; border: none; cursor: pointer; font-size: 18px; }
+        body { background: #0b0e14; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; padding: 20px; }
+        .card { background: #161b22; padding: 30px; border-radius: 20px; border: 1px solid #00dfd8; width: 100%; max-width: 400px; text-align: center; }
+        .btn { background: #00dfd8; color: #000; padding: 20px; text-decoration: none; border-radius: 15px; font-weight: bold; width: 100%; border: none; cursor: pointer; font-size: 18px; margin-top: 20px; }
     </style>
 </head>
 <body>
-    <button onclick="importToV2Box()" class="btn">⚡️ ПОДКЛЮЧИТЬ VPN</button>
+    <div class="card">
+        <h2 style="color:#00dfd8">Ключ готов!</h2>
+        <p>Нажми кнопку ниже, а затем в приложении выбери <b>"Импорт из буфера"</b>.</p>
+        <button onclick="copyAndOpen()" class="btn">СКОПИРОВАТЬ И ОТКРЫТЬ</button>
+    </div>
 
     <script>
-        function importToV2Box() {
+        function copyAndOpen() {
             const urlParams = new URLSearchParams(window.location.search);
             const enc = urlParams.get('enc');
-            if (!enc) return;
-            
-            const link = atob(enc); // Наш VLESS или SUB ссылка
+            const link = atob(enc);
 
-            // 1. Копируем в буфер (железная страховка для Андроида)
+            // КОПИРУЕМ ВЕСЬ ГИГАНТСКИЙ ТЕКСТ
             const el = document.createElement('textarea');
             el.value = link;
             document.body.appendChild(el);
@@ -28,16 +31,10 @@
             document.execCommand('copy');
             document.body.removeChild(el);
 
-            // 2. Вчерашний секретный метод: прямой импорт через install-config
-            // Это заставляет V2Box сразу выкинуть окно подтверждения
-            const v2boxUrl = "v2box://install-config?url=" + encodeURIComponent(link);
-            
-            window.location.href = v2boxUrl;
+            alert("Ключ скопирован! Сейчас откроется приложение. Нажми там + и 'Import from clipboard'");
 
-            // 3. Если через секунду не перекинуло — просто открываем приложение
-            setTimeout(() => {
-                window.location.href = "v2box://";
-            }, 1000);
+            // Просто открываем приложение без передачи данных через URL (так надежнее)
+            window.location.href = "v2box://";
         }
     </script>
 </body>
