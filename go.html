@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rocket VPN - Подключение</title>
+    <title>Rocket VPN - Ремонт</title>
     <style>
         body { background: #0b0e14; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
         .card { background: #161b22; padding: 30px; border-radius: 20px; border: 1px solid #00dfd8; width: 85%; max-width: 350px; }
@@ -13,20 +13,19 @@
 <body>
     <div class="card">
         <h2 style="color:#00dfd8">Прямое подключение</h2>
-        <p>Нажми кнопку для импорта ключа в приложение.</p>
+        <p>Нажми кнопку, и ключ будет передан в приложение без искажений.</p>
         <button onclick="superImport()" class="btn">⚡️ ПОДКЛЮЧИТЬ</button>
     </div>
 
     <script>
         function superImport() {
             const urlParams = new URLSearchParams(window.location.search);
-            const enc = urlParams.get('enc'); 
+            const enc = urlParams.get('enc'); // Это наш vless в b64
             if (!enc) return;
             
-            // 1. Декодируем VLESS из Base64 (получаем vless://...)
             const rawVless = atob(enc);
 
-            // 2. Копируем в буфер (резервный метод для всех)
+            // 1. Копируем оригинал в буфер (бетонная страховка)
             const el = document.createElement('textarea');
             el.value = rawVless;
             document.body.appendChild(el);
@@ -34,25 +33,17 @@
             document.execCommand('copy');
             document.body.removeChild(el);
 
-            // 3. Определяем ОС
-            const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+            // 2. Метод "Чистого Конфига"
+            // Мы кодируем vless ссылку еще раз, чтобы в URL не было символов ? & и т.д.
+            // V2Box понимает такой формат как "готовый импорт"
+            const configB64 = btoa(rawVless);
+            const finalUrl = "v2box://install-config?url=" + configB64;
 
-            if (isIOS) {
-                // ДЛЯ IPHONE:
-                // Используем протокол v2box. 
-                // Важно: передаем чистую ссылку vless:// через encodeURIComponent
-                const iosUrl = "v2box://install-config?url=" + encodeURIComponent(rawVless);
-                window.location.href = iosUrl;
-            } else {
-                // ДЛЯ ANDROID:
-                // Просто переходим по прямой vless:// ссылке
-                window.location.href = rawVless;
-            }
+            window.location.href = finalUrl;
 
-            // 4. Дополнительная попытка просто открыть приложение, если импорт не сработал мгновенно
             setTimeout(() => {
                 window.location.href = "v2box://";
-            }, 1500);
+            }, 1000);
         }
     </script>
 </body>
