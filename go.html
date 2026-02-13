@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rocket VPN - Подключение</title>
+    <title>Rocket VPN - Авто-настройка</title>
     <style>
         body { background: #0b0e14; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
         .card { background: #161b22; padding: 30px; border-radius: 20px; border: 1px solid #00dfd8; width: 80%; }
@@ -14,40 +14,61 @@
 </head>
 <body>
     <div class="card">
-        <div class="loader"></div>
-        <h2 id="st">Настройка...</h2>
-        <p id="msg">Копируем данные подписки</p>
-        <a href="#" id="openBtn" class="btn">ОТКРЫТЬ VPN ПРИЛОЖЕНИЕ</a>
+        <div class="loader" id="loader"></div>
+        <h2 id="st">Синхронизация...</h2>
+        <p id="msg">Передаем ключ в приложение</p>
+        <a href="#" id="manualBtn" class="btn">ОТКРЫТЬ ВРУЧНУЮ</a>
     </div>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const enc = urlParams.get('enc');
 
-        async function init() {
-            if (!enc) return;
-            const vlessLink = atob(enc);
-            const isAndroid = /Android/i.test(navigator.userAgent);
-            
-            // Копируем ключ (Happ увидит его в буфере и предложит импорт)
+        function copyToClipboard(text) {
             const el = document.createElement('textarea');
-            el.value = vlessLink;
+            el.value = text;
             document.body.appendChild(el);
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
-
-            const appUri = isAndroid ? "happ://" : "v2box://";
-
-            setTimeout(() => {
-                document.getElementById('st').innerText = "Готово!";
-                document.getElementById('msg').innerHTML = "Конфиг скопирован.<br>Нажмите <b>YES/IMPORT</b> в приложении.";
-                document.getElementById('openBtn').style.display = "block";
-                document.getElementById('openBtn').href = appUri;
-                window.location.href = appUri;
-            }, 600);
         }
-        window.onload = init;
+
+        async function launch() {
+            if (!enc) return;
+            const vlessLink = atob(enc);
+            const isAndroid = /Android/i.test(navigator.userAgent);
+
+            // 1. Всегда копируем в буфер (это наш "черный ход")
+            copyToClipboard(vlessLink);
+
+            if (isAndroid) {
+                // Хитрый способ для Android: пробуем передать через intent
+                // Если приложение не подхватит ссылку целиком, оно подхватит её из буфера при открытии
+                const intentUrl = "intent://" + vlessLink.replace("vless://", "") + "#Intent;scheme=vless;package=com.happ.vpn;end";
+                
+                // Сначала пробуем прямой импорт
+                window.location.href = "happ://import/" + vlessLink;
+                
+                // Если через 500мс ничего не произошло или ключ битый, просто открываем приложение
+                setTimeout(() => {
+                    window.location.href = "happ://";
+                }, 500);
+            } else {
+                // Для iOS всё остается как было — там и так работает
+                window.location.href = "v2box://install-config?url=" + encodeURIComponent(vlessLink);
+            }
+
+            // Обновляем UI
+            setTimeout(() => {
+                document.getElementById('loader').style.display = "none";
+                document.getElementById('st').innerText = "Готово!";
+                document.getElementById('msg').innerHTML = "Ключ передан. В приложении нажмите <b>YES</b> или <b>IMPORT</b>";
+                document.getElementById('manualBtn').style.display = "block";
+                document.getElementById('manualBtn').href = isAndroid ? "happ://" : "v2box://";
+            }, 1000);
+        }
+
+        window.onload = launch;
     </script>
 </body>
 </html>
