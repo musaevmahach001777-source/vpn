@@ -1,57 +1,43 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rocket VPN - Подключение</title>
     <style>
-        body { background: #0b0e14; color: white; font-family: -apple-system, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .card { background: #161b22; padding: 35px 25px; border-radius: 28px; border: 1px solid #00dfd8; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .icon { font-size: 50px; margin-bottom: 20px; }
-        h2 { font-size: 22px; margin: 0 0 15px; color: #00dfd8; }
-        p { font-size: 15px; color: #8b949e; line-height: 1.5; margin-bottom: 25px; }
-        .btn { display: block; background: #00dfd8; color: #0b0e14; padding: 18px; text-decoration: none; border-radius: 15px; font-weight: bold; font-size: 16px; transition: 0.2s; border: none; width: 100%; cursor: pointer; }
-        .btn:active { transform: scale(0.98); opacity: 0.8; }
-        #copy-status { display: none; color: #00dfd8; font-size: 13px; margin-top: 10px; font-weight: bold; }
+        body { background: #0b0e14; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
+        .btn { background: #00dfd8; color: #000; padding: 20px; text-decoration: none; border-radius: 15px; font-weight: bold; width: 80%; border: none; cursor: pointer; font-size: 18px; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <div class="icon">🚀</div>
-        <h2>Почти готово!</h2>
-        <p>Нажмите на кнопку ниже, чтобы скопировать ключ и открыть приложение.</p>
-        
-        <button onclick="startConnect()" class="btn" id="mainBtn">ПОДКЛЮЧИТЬ VPN</button>
-        <div id="copy-status">✅ КЛЮЧ СКОПИРОВАН</div>
-    </div>
+    <button onclick="importToV2Box()" class="btn">⚡️ ПОДКЛЮЧИТЬ VPN</button>
 
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const enc = urlParams.get('enc');
-
-        function startConnect() {
-            if (!enc) return alert("Ключ не найден");
+        function importToV2Box() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const enc = urlParams.get('enc');
+            if (!enc) return;
             
-            const vlessLink = atob(enc);
-            const isAndroid = /Android/i.test(navigator.userAgent);
-            const appUri = isAndroid ? "happ://" : "v2box://";
+            const link = atob(enc); // Наш VLESS или SUB ссылка
 
-            // 1. Прямое копирование по клику (Android это разрешит)
+            // 1. Копируем в буфер (железная страховка для Андроида)
             const el = document.createElement('textarea');
-            el.value = vlessLink;
+            el.value = link;
             document.body.appendChild(el);
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
 
-            // 2. Визуальный фидбек
-            document.getElementById('mainBtn').innerText = "ОТКРЫВАЕМ...";
-            document.getElementById('copy-status').style.display = "block";
+            // 2. Вчерашний секретный метод: прямой импорт через install-config
+            // Это заставляет V2Box сразу выкинуть окно подтверждения
+            const v2boxUrl = "v2box://install-config?url=" + encodeURIComponent(link);
+            
+            window.location.href = v2boxUrl;
 
-            // 3. Переход в приложение
+            // 3. Если через секунду не перекинуло — просто открываем приложение
             setTimeout(() => {
-                window.location.href = appUri;
-            }, 400);
+                window.location.href = "v2box://";
+            }, 1000);
         }
     </script>
 </body>
