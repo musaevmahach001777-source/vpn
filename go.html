@@ -7,52 +7,63 @@
     <style>
         body { background: #0b0e14; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
         .card { background: #161b22; padding: 30px; border-radius: 20px; border: 1px solid #00dfd8; width: 85%; max-width: 350px; }
-        .btn { background: #00dfd8; color: #000; padding: 20px; text-decoration: none; border-radius: 15px; font-weight: bold; width: 100%; border: none; cursor: pointer; font-size: 18px; }
+        .btn { background: #00dfd8; color: #000; padding: 20px; text-decoration: none; border-radius: 15px; font-weight: bold; width: 100%; border: none; cursor: pointer; font-size: 18px; margin-bottom: 10px; display: block; }
+        .btn-copy { background: transparent; color: #00dfd8; border: 1px solid #00dfd8; font-size: 14px; padding: 10px; }
     </style>
 </head>
 <body>
     <div class="card">
         <h2 style="color:#00dfd8">Прямое подключение</h2>
-        <p>Нажми кнопку, и ключ будет передан в приложение без искажений.</p>
+        <p id="statusText">Нажми кнопку, и ключ будет передан в приложение без искажений.</p>
         <button onclick="superImport()" class="btn">⚡️ ПОДКЛЮЧИТЬ</button>
+        <button onclick="copyOnly()" class="btn btn-copy">📋 СКОПИРОВАТЬ ВРУЧНУЮ</button>
     </div>
 
     <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const enc = urlParams.get('enc');
+        const rawVless = enc ? atob(enc) : "";
+
         function superImport() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const enc = urlParams.get('enc'); // Это наш vless в b64
-            if (!enc) return;
+            if (!rawVless) return;
             
-            const rawVless = atob(enc);
+            // 1. Копируем оригинал в буфер (страховка)
+            copyOnly();
 
-            // 1. Копируем оригинал в буфер (бетонная страховка)
-            const el = document.createElement('textarea');
-            el.value = rawVless;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-
-            // Проверка на iPhone
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
             if (isIOS) {
-                // ДЛЯ IPHONE: используем прямую ссылку (без btoa), так он не выдает ошибку
-                window.location.href = "v2box://install-config?url=" + encodeURIComponent(rawVless);
+                // МЕТОД ДЛЯ IPHONE (Проверенный): 
+                // Отправляем чистую vless ссылку. V2Box перехватывает этот протокол сам.
+                window.location.href = rawVless;
+                
+                // Если через 500мс не вылетело из браузера, пробуем второй метод для iOS
+                setTimeout(() => {
+                    window.location.href = "v2box://install-config?url=" + encodeURIComponent(rawVless);
+                }, 500);
             } else {
                 // 2. Метод "Чистого Конфига" (ДЛЯ ANDROID - ОСТАВИЛ КАК БЫЛО)
-                // Мы кодируем vless ссылку еще раз, чтобы в URL не было символов ? & и т.д.
-                // V2Box понимает такой формат как "готовый импорт"
                 const configB64 = btoa(rawVless);
                 const finalUrl = "v2box://install-config?url=" + configB64;
-
                 window.location.href = finalUrl;
             }
 
             setTimeout(() => {
                 window.location.href = "v2box://";
-            }, 1000);
+            }, 1500);
         }
+
+        function copyOnly() {
+            if (!rawVless) return;
+            const el = document.createElement('textarea');
+            el.value = rawVless;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            document.getElementById('statusText').innerText = "✅ Ключ скопирован! Теперь вставь его в приложение.";
+            document.getElementById('statusText').style.color = "#00ff00";
+        }
     </script>
 </body>
 </html>
