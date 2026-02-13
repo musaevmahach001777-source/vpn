@@ -6,66 +6,203 @@
     <title>ZOO VPN PREMIUM</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --bg: #0f0c29; --glass: rgba(255, 255, 255, 0.07); --accent-pink: #ff0080; --accent-cyan: #00dfd8; --text: #ffffff; }
-        body { margin: 0; padding: 20px; background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e); color: var(--text); font-family: 'Segoe UI', sans-serif; overflow: hidden; min-height: 100vh; }
+        :root { 
+            --bg: #0f0c29; 
+            --glass: rgba(255, 255, 255, 0.08); 
+            --accent-pink: #ff0080; 
+            --accent-cyan: #00dfd8; 
+            --text: #ffffff; 
+            --glow: 0 0 15px rgba(0, 223, 216, 0.3);
+        }
+        
+        body { 
+            margin: 0; 
+            padding: 20px; 
+            background: radial-gradient(circle at top, #1b2735 0%, #090a0f 100%);
+            color: var(--text); 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            overflow: hidden; 
+            min-height: 100vh; 
+        }
+
         .stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
-        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: move linear infinite; }
+        .star { position: absolute; background: white; border-radius: 50%; opacity: 0.3; animation: move linear infinite; }
         @keyframes move { from { transform: translateY(100vh); } to { transform: translateY(-10vh); } }
-        .main-container { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; }
-        .card-balance { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255, 0, 128, 0.3); border-radius: 25px; padding: 20px; text-align: center; }
-        .balance-val { font-size: 42px; font-weight: 800; background: linear-gradient(45deg, var(--accent-pink), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .box { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 20px; text-align: center; }
-        .box-title { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-bottom: 3px; }
-        .box-data { font-size: 14px; font-weight: 600; }
-        .btn { border: none; padding: 18px; border-radius: 20px; font-size: 15px; font-weight: 800; color: white; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 5px; -webkit-tap-highlight-color: transparent; }
-        .btn-rocket { background: linear-gradient(45deg, #00c6ff, #0072ff); box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4); animation: pulse 2s infinite; }
-        .btn-test { background: linear-gradient(45deg, #f093fb, #f5576c); border: 1px solid rgba(255,255,255,0.2); }
-        .btn-vpn { background: linear-gradient(45deg, #ff0080, #7928ca); }
-        .btn-pay { background: linear-gradient(45deg, #00dfd8, #007cf0); }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
-        .modal { position: fixed; bottom: -100%; left: 0; width: 100%; background: #1a1a2e; border-top: 2px solid var(--accent-cyan); border-top-left-radius: 30px; border-top-right-radius: 30px; padding: 25px 20px; z-index: 100; transition: 0.4s; box-sizing: border-box; }
+
+        .main-container { 
+            position: relative; 
+            z-index: 1; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px;
+            animation: containerUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        @keyframes containerUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-balance { 
+            background: var(--glass); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 28px; 
+            padding: 25px; 
+            text-align: center; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .balance-val { 
+            font-size: 46px; 
+            font-weight: 900; 
+            background: linear-gradient(90deg, #00dfd8, #007cf0, #ff0080);
+            background-size: 200% auto;
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            animation: shine 3s linear infinite;
+        }
+
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
+
+        .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        
+        .box { 
+            background: var(--glass); 
+            backdrop-filter: blur(10px); 
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            padding: 15px; 
+            border-radius: 22px; 
+            text-align: center; 
+            transition: 0.3s;
+        }
+
+        .box-title { font-size: 11px; opacity: 0.5; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .box-data { font-size: 16px; font-weight: 700; }
+
+        .btn { 
+            border: none; 
+            padding: 20px; 
+            border-radius: 22px; 
+            font-size: 16px; 
+            font-weight: 800; 
+            color: white; 
+            cursor: pointer; 
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
+            width: 100%; 
+            -webkit-tap-highlight-color: transparent; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn:active { transform: scale(0.96); opacity: 0.9; }
+
+        .btn-rocket { 
+            background: linear-gradient(45deg, #00dfd8, #007cf0); 
+            box-shadow: 0 8px 20px rgba(0, 223, 216, 0.25); 
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-rocket::after {
+            content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: rotate(45deg); animation: flare 3s infinite;
+        }
+
+        @keyframes flare {
+            0% { transform: translateX(-150%) rotate(45deg); }
+            100% { transform: translateX(150%) rotate(45deg); }
+        }
+
+        .btn-test { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.15); }
+        .btn-vpn { background: linear-gradient(45deg, #ff0080, #7928ca); box-shadow: 0 8px 20px rgba(255, 0, 128, 0.2); }
+        .btn-pay { background: linear-gradient(45deg, #4facfe, #00f2fe); box-shadow: 0 8px 20px rgba(79, 172, 254, 0.2); }
+
+        .modal { 
+            position: fixed; bottom: -100%; left: 0; width: 100%; 
+            background: #0f111a; border-top: 1px solid rgba(0, 223, 216, 0.4); 
+            border-top-left-radius: 35px; border-top-right-radius: 35px; 
+            padding: 30px 20px; z-index: 100; transition: 0.5s cubic-bezier(0.3, 1, 0.3, 1); 
+            box-sizing: border-box; box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
+        }
         .modal.active { bottom: 0; }
-        input { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid var(--accent-cyan); background: rgba(255,255,255,0.05); color: white; font-size: 20px; text-align: center; margin-bottom: 20px; box-sizing: border-box; }
-        .pay-option { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+
+        input { 
+            width: 100%; padding: 18px; border-radius: 18px; 
+            border: 1px solid rgba(0, 223, 216, 0.3); 
+            background: rgba(255,255,255,0.03); color: white; 
+            font-size: 22px; text-align: center; margin-bottom: 20px; 
+            box-sizing: border-box; outline: none;
+        }
+
+        .pay-option { 
+            background: rgba(255,255,255,0.05); padding: 18px; 
+            border-radius: 20px; display: flex; align-items: center; 
+            justify-content: space-between; margin-bottom: 12px; 
+            border: 1px solid rgba(255,255,255,0.05); font-weight: 600;
+        }
     </style>
 </head>
 <body>
     <div class="stars-container" id="stars"></div>
     <div class="main-container">
         <div class="card-balance">
-            <div style="font-size: 13px;">Ваш баланс</div>
+            <div style="font-size: 14px; opacity: 0.7; margin-bottom: 5px;">Баланс аккаунта</div>
             <div class="balance-val" id="balanceDisplay">0.00 ₽</div>
-            <div style="font-size: 10px; opacity: 0.5;" id="userDisplay">ID: ---</div>
+            <div style="font-size: 11px; opacity: 0.4; margin-top: 8px;" id="userDisplay">ID: ---</div>
         </div>
+        
         <div class="grid-info">
-            <div class="box"><div class="box-title">Статус</div><div class="box-data" id="statusDisplay" style="color:#ff4d4d">● Не активен</div></div>
-            <div class="box"><div class="box-title">Доступно</div><div class="box-data" id="daysDisplay">0 дней</div></div>
+            <div class="box">
+                <div class="box-title">Статус</div>
+                <div class="box-data" id="statusDisplay" style="color:#ff4d4d">● Не активен</div>
+            </div>
+            <div class="box">
+                <div class="box-title">Доступно</div>
+                <div class="box-data" id="daysDisplay">0 дней</div>
+            </div>
         </div>
         
         <button class="btn btn-rocket" id="rocketBtn">🚀 ПОДКЛЮЧИТЬ VPN</button>
-        <button class="btn btn-test" id="testBtn">🎁 ТЕСТОВЫЙ ПЕРИОД (24ч)</button>
+        <button class="btn btn-test" id="testBtn">🎁 ПОПРОБОВАТЬ БЕСПЛАТНО</button>
+        
+        <div style="height: 5px;"></div>
         
         <button class="btn btn-vpn" onclick="openTariffModal()">💎 ВЫБРАТЬ ТАРИФ</button>
         <button class="btn btn-pay" onclick="openAmountModal()">💳 ПОПОЛНИТЬ БАЛАНС</button>
     </div>
 
     <div class="modal" id="tariffModal">
-        <div style="text-align:center; margin-bottom:20px; font-weight:700;">ТАРИФЫ</div>
-        <div class="pay-option" onclick="confirmBuy(1, 299)">1 Месяц - 299 ₽</div>
-        <div class="pay-option" onclick="confirmBuy(3, 834)">3 Месяца - 834 ₽</div>
-        <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Закрыть</div>
+        <div style="text-align:center; margin-bottom:25px; font-weight:800; font-size: 18px; letter-spacing: 1px;">ДОСТУПНЫЕ ТАРИФЫ</div>
+        <div class="pay-option" onclick="confirmBuy(1, 299)">
+            <span>1 Месяц</span>
+            <span style="color:var(--accent-cyan)">299 ₽</span>
+        </div>
+        <div class="pay-option" onclick="confirmBuy(3, 834)">
+            <span>3 Месяца</span>
+            <span style="color:var(--accent-cyan)">834 ₽</span>
+        </div>
+        <div style="text-align:center; margin-top:25px; opacity:0.4; font-size: 14px;" onclick="closeAll()">Закрыть</div>
     </div>
     
     <div class="modal" id="amountModal">
-        <input type="number" id="sumInput" placeholder="Сумма (₽)">
-        <button class="btn btn-pay" onclick="sendPayment()">ПОПОЛНИТЬ</button>
-        <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Отмена</div>
+        <div style="text-align:center; margin-bottom:20px; font-weight:700;">СУММА ПОПОЛНЕНИЯ</div>
+        <input type="number" id="sumInput" placeholder="0 ₽" inputmode="numeric">
+        <button class="btn btn-pay" onclick="sendPayment()">ПРОДОЛЖИТЬ</button>
+        <div style="text-align:center; margin-top:25px; opacity:0.4; font-size: 14px;" onclick="closeAll()">Отмена</div>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
+        tg.enableClosingConfirmation();
         
         const params = new URLSearchParams(window.location.search);
         const balance = params.get('balance') || "0";
@@ -79,13 +216,11 @@
         if (parseInt(days) > 0) { 
             document.getElementById('statusDisplay').innerText = "● Активен"; 
             document.getElementById('statusDisplay').style.color = "#00ff00"; 
-            // Скрываем кнопку теста, если подписка уже активна
             document.getElementById('testBtn').style.display = "none";
         }
 
-        // ЛОГИКА ТЕСТОВОГО ПЕРИОДА
         document.getElementById('testBtn').onclick = function() {
-            tg.showConfirm("Получить бесплатный доступ на 24 часа?", (ok) => {
+            tg.showConfirm("Активировать бесплатный доступ на 24 часа?", (ok) => {
                 if (ok) {
                     tg.sendData(JSON.stringify({action: 'get_free_test'}));
                     tg.close();
@@ -93,17 +228,16 @@
             });
         };
 
-        // ЛОГИКА ГЛАВНОЙ КНОПКИ
         document.getElementById('rocketBtn').onclick = function() {
             if (parseInt(days) <= 0) {
-                tg.showConfirm("У вас нет активной подписки. Хотите получить бесплатный тестовый доступ на 24 часа?", (ok) => {
+                tg.showConfirm("У вас нет активной подписки. Активировать тест на 24 часа?", (ok) => {
                     if (ok) {
                         tg.sendData(JSON.stringify({action: 'get_free_test'}));
                         tg.close();
                     }
                 });
             } else {
-                tg.showConfirm("Для подключения мы отправим вам ключ и инструкции в чат. Продолжить?", (ok) => {
+                tg.showConfirm("Отправить ключ и инструкции в чат?", (ok) => {
                     if (ok) {
                         tg.sendData(JSON.stringify({action: 'request_vpn_button'}));
                         tg.close();
@@ -112,8 +246,8 @@
             }
         };
 
-        function openTariffModal() { document.getElementById('tariffModal').classList.add('active'); }
-        function openAmountModal() { document.getElementById('amountModal').classList.add('active'); }
+        function openTariffModal() { document.getElementById('tariffModal').classList.add('active'); tg.HapticFeedback.impactOccurred('medium'); }
+        function openAmountModal() { document.getElementById('amountModal').classList.add('active'); tg.HapticFeedback.impactOccurred('medium'); }
         function closeAll() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('active')); }
         
         function sendPayment() {
@@ -125,17 +259,20 @@
 
         function confirmBuy(m, p) {
             if (parseFloat(balance) < p) return tg.showAlert("Недостаточно средств на балансе!");
+            tg.HapticFeedback.notificationOccurred('success');
             tg.sendData(JSON.stringify({action: "buy_subscription", months: m, price: p}));
             setTimeout(() => tg.close(), 100);
         }
 
         const container = document.getElementById('stars');
-        for (let i = 0; i < 30; i++) {
+        for (let i = 0; i < 40; i++) {
             const star = document.createElement('div');
             star.className = 'star';
             star.style.width = star.style.height = Math.random() * 2 + 'px';
             star.style.left = Math.random() * 100 + 'vw';
-            star.style.animationDuration = Math.random() * 3 + 2 + 's';
+            star.style.top = Math.random() * 100 + 'vh';
+            star.style.animationDuration = Math.random() * 5 + 3 + 's';
+            star.style.opacity = Math.random();
             container.appendChild(star);
         }
     </script>
