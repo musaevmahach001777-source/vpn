@@ -6,7 +6,7 @@
     <title>ZOO VPN PREMIUM</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --bg: #0f0c29; --glass: rgba(255, 255, 255, 0.07); --accent-pink: #ff0080; --accent-cyan: #00dfd8; --text: #ffffff; }
+        :root { --bg: #0f0c29; --glass: rgba(255, 255, 255, 0.07); --btn-glass: rgba(255, 255, 255, 0.12); --accent-pink: #ff0080; --accent-cyan: #00dfd8; --text: #ffffff; }
         body { margin: 0; padding: 20px; background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e); color: var(--text); font-family: 'Segoe UI', sans-serif; overflow: hidden; min-height: 100vh; }
         .stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
         .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: move linear infinite; }
@@ -18,12 +18,21 @@
         .box { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 20px; text-align: center; }
         .box-title { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-bottom: 3px; }
         .box-data { font-size: 14px; font-weight: 600; }
-        .btn { border: none; padding: 18px; border-radius: 20px; font-size: 15px; font-weight: 800; color: white; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 5px; -webkit-tap-highlight-color: transparent; }
-        .btn-rocket { background: linear-gradient(45deg, #00c6ff, #0072ff); box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4); animation: pulse 2s infinite; }
-        .btn-test { background: linear-gradient(45deg, #f093fb, #f5576c); border: 1px solid rgba(255,255,255,0.2); }
-        .btn-vpn { background: linear-gradient(45deg, #ff0080, #7928ca); }
-        .btn-pay { background: linear-gradient(45deg, #00dfd8, #007cf0); }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+        
+        /* Стеклянные кнопки */
+        .btn { border: 1px solid rgba(255, 255, 255, 0.2); padding: 18px; border-radius: 20px; font-size: 15px; font-weight: 800; color: white; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 5px; -webkit-tap-highlight-color: transparent; backdrop-filter: blur(10px); background: var(--btn-glass); }
+        .btn-test { border-color: rgba(240, 147, 251, 0.5); box-shadow: 0 4px 15px rgba(240, 147, 251, 0.2); }
+        .btn-rocket { border-color: rgba(0, 198, 255, 0.5); box-shadow: 0 5px 15px rgba(0, 114, 255, 0.3); animation: pulse 2s infinite; }
+        .btn-vpn { border-color: rgba(255, 0, 128, 0.5); }
+        .btn-pay { border-color: rgba(0, 223, 216, 0.5); }
+        
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+        
+        /* Анимация ракеты */
+        #rocket-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 12, 41, 0.9); display: none; justify-content: center; align-items: center; z-index: 1000; flex-direction: column; }
+        .rocket-anim { font-size: 80px; animation: launch 1.2s ease-in forwards; }
+        @keyframes launch { 0% { transform: translateY(100px) scale(0.5); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-100vh) scale(1.5); opacity: 0; } }
+
         .modal { position: fixed; bottom: -100%; left: 0; width: 100%; background: #1a1a2e; border-top: 2px solid var(--accent-cyan); border-top-left-radius: 30px; border-top-right-radius: 30px; padding: 25px 20px; z-index: 100; transition: 0.4s; box-sizing: border-box; }
         .modal.active { bottom: 0; }
         input { width: 100%; padding: 15px; border-radius: 15px; border: 1px solid var(--accent-cyan); background: rgba(255,255,255,0.05); color: white; font-size: 20px; text-align: center; margin-bottom: 20px; box-sizing: border-box; }
@@ -31,6 +40,7 @@
     </style>
 </head>
 <body>
+    <div id="rocket-overlay"><div class="rocket-anim">🚀</div></div>
     <div class="stars-container" id="stars"></div>
     <div class="main-container">
         <div class="card-balance">
@@ -43,8 +53,8 @@
             <div class="box"><div class="box-title">Доступно</div><div class="box-data" id="daysDisplay">0 дней</div></div>
         </div>
         
-        <button class="btn btn-rocket" id="rocketBtn">🚀 ПОДКЛЮЧИТЬ VPN</button>
         <button class="btn btn-test" id="testBtn">🎁 ТЕСТОВЫЙ ПЕРИОД (24ч)</button>
+        <button class="btn btn-rocket" id="rocketBtn">🚀 ПОДКЛЮЧИТЬ VPN</button>
         
         <button class="btn btn-vpn" onclick="openTariffModal()">💎 ВЫБРАТЬ ТАРИФ</button>
         <button class="btn btn-pay" onclick="openAmountModal()">💳 ПОПОЛНИТЬ БАЛАНС</button>
@@ -79,34 +89,36 @@
         if (parseInt(days) > 0) { 
             document.getElementById('statusDisplay').innerText = "● Активен"; 
             document.getElementById('statusDisplay').style.color = "#00ff00"; 
-            // Скрываем кнопку теста, если подписка уже активна
             document.getElementById('testBtn').style.display = "none";
         }
 
-        // ЛОГИКА ТЕСТОВОГО ПЕРИОДА
+        function startRocket() {
+            document.getElementById('rocket-overlay').style.display = 'flex';
+            setTimeout(() => { tg.close(); }, 1100);
+        }
+
         document.getElementById('testBtn').onclick = function() {
             tg.showConfirm("Получить бесплатный доступ на 24 часа?", (ok) => {
                 if (ok) {
                     tg.sendData(JSON.stringify({action: 'get_free_test'}));
-                    tg.close();
+                    startRocket();
                 }
             });
         };
 
-        // ЛОГИКА ГЛАВНОЙ КНОПКИ
         document.getElementById('rocketBtn').onclick = function() {
             if (parseInt(days) <= 0) {
                 tg.showConfirm("У вас нет активной подписки. Хотите получить бесплатный тестовый доступ на 24 часа?", (ok) => {
                     if (ok) {
                         tg.sendData(JSON.stringify({action: 'get_free_test'}));
-                        tg.close();
+                        startRocket();
                     }
                 });
             } else {
                 tg.showConfirm("Для подключения мы отправим вам ключ и инструкции в чат. Продолжить?", (ok) => {
                     if (ok) {
                         tg.sendData(JSON.stringify({action: 'request_vpn_button'}));
-                        tg.close();
+                        startRocket();
                     }
                 });
             }
