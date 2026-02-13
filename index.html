@@ -104,7 +104,6 @@
             document.getElementById('testBtn').style.display = "none";
         }
 
-        // --- ИСПРАВЛЕННАЯ ФУНКЦИЯ ---
         function handleLaunch(actionData) {
             const overlay = document.getElementById('rocket-overlay');
             const rocket = document.getElementById('emojiRocket');
@@ -113,22 +112,10 @@
             rocket.classList.add('launch-anim');
             
             setTimeout(() => {
-                // Вместо sendData используем скрытую команду
-                // Это закроет приложение БЕЗ плашки сообщения
-                const query = btoa(JSON.stringify(actionData)); // кодируем в base64 для надежности
-                tg.close(); 
-                // Передаем через скрытый хеш (бот должен уметь читать это, но мы сделаем проще)
-                // Самый чистый метод без плашки для WebApp — это просто закрыть и ждать, 
-                // либо использовать специальный метод API. 
-                // Но так как у тебя Polling, мы заменим sendData на прямую команду:
-                
-                // ВНИМАНИЕ: Если ты хочешь ПОЛНОСТЬЮ убрать сообщение, 
-                // единственный путь — слать запрос на сервер. 
-                // Но я сделал «быстрый фикс» — плашка исчезнет, если бот сам напишет юзеру.
                 tg.sendData(JSON.stringify(actionData));
+                tg.close(); // Закрываем Mini App после отправки данных
             }, 3000); 
         }
-        // ----------------------------
 
         document.getElementById('testBtn').onclick = function() {
             handleLaunch({action: 'get_free_test'});
@@ -150,14 +137,12 @@
             const val = document.getElementById('sumInput').value;
             if(!val) return;
             tg.showConfirm("Для пополнения на " + val + "₽ напишите администратору.", (ok) => {
-                if(ok) {
-                    window.location.href = "https://t.me/Musaev001"; // Ссылка на тебя
-                }
+                if(ok) tg.close();
             });
         }
 
         function confirmBuy(m, p) {
-            if (parseFloat(balance) < p) return tg.showAlert("Недостаточно средств! Пополните баланс.");
+            if (parseFloat(balance) < p) return tg.showAlert("Недостаточно средств! Пополните баланс через администратора.");
             handleLaunch({action: "buy_subscription", months: m, price: p});
         }
 
@@ -181,7 +166,7 @@
         <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Закрыть</div>
     </div>
     <div class="modal" id="amountModal">
-        <div style="text-align:center; margin-bottom:15px; font-size:14px;">Введите сумму для пополнения</div>
+        <div style="text-align:center; margin-bottom:15px; font-size:14px;">Введите сумму для пополнения через админа</div>
         <input type="number" id="sumInput" placeholder="Сумма (₽)">
         <button class="btn btn-pay" onclick="sendPayment()">СВЯЗАТЬСЯ</button>
         <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Отмена</div>
