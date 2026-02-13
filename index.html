@@ -143,7 +143,12 @@
 
         function confirmBuy(m, p) {
             if (parseFloat(balance) < p) return tg.showAlert("Недостаточно средств! Пополните баланс через администратора.");
-            handleLaunch({action: "buy_subscription", months: m, price: p});
+            
+            tg.showConfirm(`Вы уверены, что хотите выбрать тариф на ${m} мес. за ${p} ₽?`, (ok) => {
+                if (ok) {
+                    handleLaunch({action: "buy_subscription", months: m, price: p});
+                }
+            });
         }
 
         const container = document.getElementById('stars');
