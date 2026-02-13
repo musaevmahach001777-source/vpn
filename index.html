@@ -33,32 +33,32 @@
         
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
         
-        /* АНИМАЦИЯ ВЗЛЕТА */
+        /* АНИМАЦИЯ ВЗЛЕТА (КАК НА ВИДЕО) */
         #rocket-overlay { 
             position: fixed; 
             top: 0; left: 0; 
             width: 100%; height: 100%; 
-            background: rgba(15, 12, 41, 0.9); 
+            background: rgba(15, 12, 41, 0.6); /* Полупрозрачный фон */
             display: none; 
             justify-content: center; 
             align-items: center; 
             z-index: 1000; 
+            pointer-events: none; /* Чтобы не мешал кликам во время появления */
         }
         
-        .big-rocket-svg { 
-            width: 150px; 
-            height: 150px; 
+        .big-emoji-rocket { 
+            font-size: 120px; 
             position: absolute; 
-            bottom: -200px;
-            filter: drop-shadow(0 0 20px var(--accent-cyan));
+            bottom: -150px;
+            filter: drop-shadow(0 0 20px rgba(0, 223, 216, 0.8));
         }
 
         .rocket-launch-animation {
-            animation: rocket-up 1.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards;
+            animation: rocket-up 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
         @keyframes rocket-up {
-            0% { transform: translateY(0) scale(0.7); opacity: 0; }
+            0% { transform: translateY(0) scale(0.5); opacity: 0; }
             20% { opacity: 1; }
             100% { transform: translateY(-130vh) scale(1.5); opacity: 1; }
         }
@@ -71,16 +71,7 @@
 </head>
 <body>
     <div id="rocket-overlay">
-        <svg class="big-rocket-svg" id="mainRocket" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2.25C12 2.25 12 2.25 12 2.25C6.75 6.75 6 12 6 12C6 12 4.5 13.5 4.5 15.75C4.5 18 6 19.5 7.5 19.5C9 19.5 10.5 18.75 10.5 18.75V21.75L12 19.5L13.5 21.75V18.75C13.5 18.75 15 19.5 16.5 19.5C18 19.5 19.5 18 19.5 15.75C19.5 13.5 18 12 18 12C18 12 17.25 6.75 12 2.25Z" fill="url(#rocketGrad)" />
-            <path d="M9 12H15" stroke="white" stroke-width="0.5" stroke-linecap="round"/>
-            <defs>
-                <linearGradient id="rocketGrad" x1="12" y1="2.25" x2="12" y2="21.75" gradientUnits="userSpaceOnUse">
-                    <stop stop-color="#00dfd8"/>
-                    <stop offset="1" stop-color="#ff0080"/>
-                </linearGradient>
-            </defs>
-        </svg>
+        <div class="big-emoji-rocket" id="mainRocket">🚀</div>
     </div>
 
     <div class="stars-container" id="stars"></div>
@@ -141,7 +132,7 @@
             overlay.style.display = 'flex';
             setTimeout(() => {
                 rocket.classList.add('rocket-launch-animation');
-            }, 10);
+            }, 50);
             
             setTimeout(() => { 
                 tg.close(); 
