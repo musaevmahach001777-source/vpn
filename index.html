@@ -30,7 +30,6 @@
         
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
         
-        /* МЕДЛЕННАЯ РАКЕТА */
         #rocket-overlay { 
             position: fixed; 
             top: 0; left: 0; 
@@ -50,7 +49,6 @@
             will-change: transform;
         }
         .launch-anim { 
-            /* Время полета увеличено до 3 секунд для плавности */
             animation: launch 3s cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards; 
         }
         @keyframes launch {
@@ -106,7 +104,6 @@
             document.getElementById('testBtn').style.display = "none";
         }
 
-        // ЗАПУСК БЕЗ ПОДТВЕРЖДЕНИЯ
         function handleLaunch(actionData) {
             const overlay = document.getElementById('rocket-overlay');
             const rocket = document.getElementById('emojiRocket');
@@ -114,23 +111,19 @@
             overlay.style.display = 'flex';
             rocket.classList.add('launch-anim');
             
-            // Задержка увеличена до 3.5 сек, чтобы ракета полностью улетела
             setTimeout(() => {
                 tg.sendData(JSON.stringify(actionData));
             }, 3500); 
         }
 
-        // Убрали tg.showConfirm — теперь срабатывает сразу
         document.getElementById('testBtn').onclick = function() {
             handleLaunch({action: 'get_free_test'});
         };
 
         document.getElementById('rocketBtn').onclick = function() {
             if (parseInt(days) <= 0) {
-                // Если нет дней, отправляем на тест сразу
                 handleLaunch({action: 'get_free_test'});
             } else {
-                // Если есть подписка, запрашиваем кнопку сразу
                 handleLaunch({action: 'request_vpn_button'});
             }
         };
@@ -163,8 +156,10 @@
     
     <div class="modal" id="tariffModal">
         <div style="text-align:center; margin-bottom:20px; font-weight:700;">ТАРИФЫ</div>
-        <div class="pay-option" onclick="confirmBuy(1, 299)">1 Месяц - 299 ₽</div>
-        <div class="pay-option" onclick="confirmBuy(3, 834)">3 Месяца - 834 ₽</div>
+        <div class="pay-option" onclick="confirmBuy(1, 199)">1 месяц - 199 ₽</div>
+        <div class="pay-option" onclick="confirmBuy(3, 499)">3 месяца - 499 ₽</div>
+        <div class="pay-option" onclick="confirmBuy(6, 899)">6 месяцев - 899 ₽</div>
+        <div class="pay-option" onclick="confirmBuy(12, 1599)">12 месяцев - 1599 ₽</div>
         <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Закрыть</div>
     </div>
     <div class="modal" id="amountModal">
