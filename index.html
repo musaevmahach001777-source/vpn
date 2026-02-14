@@ -89,6 +89,12 @@
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
+
+        // ВКЛЮЧАЕМ СИСТЕМНУЮ КНОПКУ НАЗАД
+        tg.BackButton.show();
+        tg.BackButton.onClick(function() {
+            tg.close();
+        });
         
         const params = new URLSearchParams(window.location.search);
         const balance = params.get('balance') || "0";
@@ -114,7 +120,7 @@
             
             setTimeout(() => {
                 tg.sendData(JSON.stringify(actionData));
-                tg.close(); // Закрываем Mini App после отправки данных
+                tg.close();
             }, 3000); 
         }
 
