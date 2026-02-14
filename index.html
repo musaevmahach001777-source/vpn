@@ -15,9 +15,12 @@
         @keyframes move { from { transform: translateY(100vh); } to { transform: translateY(-10vh); } }
         
         .main-container { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; }
-        .card-balance { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255, 0, 128, 0.3); border-radius: 25px; padding: 20px; text-align: center; }
-        .balance-val { font-size: 42px; font-weight: 800; background: linear-gradient(45deg, var(--accent-pink), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .card-balance { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255, 0, 128, 0.3); border-radius: 25px; padding: 15px; text-align: center; }
+        .balance-val { font-size: 36px; font-weight: 800; background: linear-gradient(45deg, var(--accent-pink), var(--accent-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
+        .ref-card { background: rgba(0, 223, 216, 0.05); border: 1px solid rgba(0, 223, 216, 0.2); border-radius: 20px; padding: 10px; margin-top: 5px; }
+        .ref-val { font-size: 20px; font-weight: 700; color: var(--accent-cyan); }
+
         .grid-info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .box { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 20px; text-align: center; }
         .box-title { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-bottom: 3px; }
@@ -28,6 +31,7 @@
         .btn-test { background: linear-gradient(45deg, #f093fb, #f5576c); border: 1px solid rgba(255,255,255,0.2); }
         .btn-vpn { background: linear-gradient(45deg, #ff0080, #7928ca); }
         .btn-pay { background: linear-gradient(45deg, #00dfd8, #007cf0); }
+        .btn-ref { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); }
         .btn-support { background: rgba(255, 255, 255, 0.1); border: 1px dashed rgba(255, 255, 255, 0.3); font-size: 13px; margin-top: 10px; }
         
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
@@ -71,10 +75,17 @@
     
     <div class="main-container">
         <div class="card-balance">
-            <div style="font-size: 13px;">Ваш баланс</div>
+            <div style="font-size: 12px; opacity: 0.8;">Основной баланс</div>
             <div class="balance-val" id="balanceDisplay">0.00 ₽</div>
-            <div style="font-size: 10px; opacity: 0.5;" id="userDisplay">ID: ---</div>
+            
+            <div class="ref-card">
+                <div style="font-size: 10px; text-transform: uppercase; opacity: 0.7;">Реферальный бонус</div>
+                <div class="ref-val" id="refBalanceDisplay">0.00 ₽</div>
+            </div>
+            
+            <div style="font-size: 10px; opacity: 0.5; margin-top: 10px;" id="userDisplay">ID: ---</div>
         </div>
+
         <div class="grid-info">
             <div class="box"><div class="box-title">Статус</div><div class="box-data" id="statusDisplay" style="color:#ff4d4d">● Не активен</div></div>
             <div class="box"><div class="box-title">Доступно</div><div class="box-data" id="daysDisplay">0 дней</div></div>
@@ -85,6 +96,7 @@
         
         <button class="btn btn-vpn" onclick="openTariffModal()">💎 ВЫБРАТЬ ТАРИФ</button>
         <button class="btn btn-pay" onclick="openAmountModal()">💳 ПОПОЛНИТЬ БАЛАНС</button>
+        <button class="btn btn-ref" id="refBtn">👥 РЕФЕРАЛЬНАЯ ПРОГРАММА</button>
         
         <a href="https://t.me/SuperRocketSupport" class="btn btn-support">💬 Обратная связь с поддержкой</a>
     </div>
@@ -93,7 +105,6 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // ВКЛЮЧАЕМ СИСТЕМНУЮ КНОПКУ НАЗАД
         tg.BackButton.show();
         tg.BackButton.onClick(function() {
             tg.close();
@@ -101,10 +112,12 @@
         
         const params = new URLSearchParams(window.location.search);
         const balance = params.get('balance') || "0";
+        const refBalance = params.get('ref_balance') || "0";
         const days = params.get('days') || "0";
         const userId = params.get('id') || "---";
 
         document.getElementById('balanceDisplay').innerText = balance + " ₽";
+        document.getElementById('refBalanceDisplay').innerText = refBalance + " ₽";
         document.getElementById('userDisplay').innerText = "ID: " + userId;
         document.getElementById('daysDisplay').innerText = days + " дней";
 
@@ -131,6 +144,11 @@
             handleLaunch({action: 'get_free_test'});
         };
 
+        document.getElementById('refBtn').onclick = function() {
+            tg.sendData(JSON.stringify({action: 'ref_program'}));
+            tg.close();
+        };
+
         document.getElementById('rocketBtn').onclick = function() {
             if (parseInt(days) <= 0) {
                 tg.showAlert("Сначала активируйте тест или купите подписку!");
@@ -149,7 +167,6 @@
                 tg.showAlert("Введите корректную сумму пополнения");
                 return;
             }
-            // Отправляем данные боту для генерации ссылки CactusPay
             tg.sendData(JSON.stringify({
                 action: "payment",
                 amount: parseInt(val)
