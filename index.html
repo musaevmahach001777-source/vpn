@@ -13,6 +13,33 @@
         .stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
         .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: move linear infinite; }
         @keyframes move { from { transform: translateY(100vh); } to { transform: translateY(-10vh); } }
+
+        /* Живые звезды (падающие) */
+        .shooting-star {
+            position: absolute;
+            top: -10px;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px 2px #fff;
+            animation: shooting 2.5s linear infinite;
+            z-index: -1;
+            opacity: 0;
+        }
+        .shooting-star::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            height: 1px;
+            background: linear-gradient(90deg, #fff, transparent);
+        }
+        @keyframes shooting {
+            0% { transform: translate(120vw, 0) rotate(-45deg); opacity: 1; }
+            100% { transform: translate(-20vw, 100vh) rotate(-45deg); opacity: 0; }
+        }
         
         .main-container { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; }
         .card-balance { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255, 0, 128, 0.3); border-radius: 25px; padding: 15px; text-align: center; }
@@ -25,6 +52,10 @@
         .box { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 20px; text-align: center; position: relative; overflow: hidden; }
         .box-title { font-size: 10px; opacity: 0.6; text-transform: uppercase; margin-bottom: 3px; }
         .box-data { font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 5px; }
+
+        /* Прогресс-бар подписки */
+        .sub-progress-bg { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+        .sub-progress-fill { height: 100%; width: 0%; background: var(--accent-cyan); border-radius: 2px; transition: 1s; box-shadow: 0 0 8px var(--accent-cyan); }
         
         /* Круговой индикатор */
         .status-ring { width: 8px; height: 8px; border-radius: 50%; border: 2px solid currentColor; display: inline-block; animation: ring-pulse 1.5s infinite; }
@@ -32,16 +63,26 @@
 
         .btn { border: none; padding: 18px; border-radius: 20px; font-size: 15px; font-weight: 800; color: white; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 5px; -webkit-tap-highlight-color: transparent; text-decoration: none; display: block; text-align: center; box-sizing: border-box; position: relative; }
         
+        /* Интерактивность кнопок */
+        .btn:active { transform: scale(0.96); }
+        
         .btn-rocket { 
             background: linear-gradient(45deg, #00c6ff, #0072ff); 
             box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4); 
-            animation: pulse 2s infinite; 
+            animation: pulse 2s infinite, btn-glow 2s ease-in-out infinite; 
             overflow: visible; 
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
         }
+
+        /* Эффект свечения */
+        @keyframes btn-glow {
+            0%, 100% { box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4), 0 0 10px rgba(0, 223, 216, 0.2); }
+            50% { box-shadow: 0 5px 25px rgba(0, 114, 255, 0.7), 0 0 20px rgba(0, 223, 216, 0.5); }
+        }
+
         .rocket-icon { 
             font-size: 24px; 
             display: inline-block; 
@@ -94,7 +135,9 @@
 </head>
 <body>
     <div id="rocket-overlay"><div class="big-rocket" id="emojiRocket">🚀</div></div>
-    <div class="stars-container" id="stars"></div>
+    <div class="stars-container" id="stars">
+        <div class="shooting-star"></div>
+    </div>
     
     <div class="main-container">
         <div class="card-balance">
@@ -111,7 +154,11 @@
 
         <div class="grid-info">
             <div class="box"><div class="box-title">Статус</div><div class="box-data" id="statusDisplay" style="color:#ff4d4d"><span class="status-ring"></span> Не активен</div></div>
-            <div class="box"><div class="box-title">Доступно</div><div class="box-data" id="daysDisplay">0 дней</div></div>
+            <div class="box">
+                <div class="box-title">Доступно</div>
+                <div class="box-data" id="daysDisplay">0 дней</div>
+                <div class="sub-progress-bg"><div class="sub-progress-fill" id="subBar"></div></div>
+            </div>
         </div>
         
         <button class="btn btn-rocket" id="rocketBtn">
@@ -146,9 +193,13 @@
         document.getElementById('userDisplay').innerText = "ID: " + userId;
         document.getElementById('daysDisplay').innerText = days + " дней";
 
-        if (parseInt(days) > 0) { 
+        // Логика прогресс-бара (макс 30 дней для примера)
+        const dayVal = parseInt(days);
+        if (dayVal > 0) { 
             document.getElementById('statusDisplay').innerHTML = '<span class="status-ring"></span> Активен'; 
             document.getElementById('statusDisplay').style.color = "#00ff00"; 
+            const percent = Math.min((dayVal / 30) * 100, 100);
+            document.getElementById('subBar').style.width = percent + "%";
         }
 
         function handleLaunch(actionData) {
