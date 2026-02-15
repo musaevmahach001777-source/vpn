@@ -28,7 +28,6 @@
         
         .btn { border: none; padding: 18px; border-radius: 20px; font-size: 15px; font-weight: 800; color: white; cursor: pointer; transition: 0.3s; width: 100%; margin-top: 5px; -webkit-tap-highlight-color: transparent; text-decoration: none; display: block; text-align: center; box-sizing: border-box; }
         .btn-rocket { background: linear-gradient(45deg, #00c6ff, #0072ff); box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4); animation: pulse 2s infinite; }
-        .btn-test { background: linear-gradient(45deg, #f093fb, #f5576c); border: 1px solid rgba(255,255,255,0.2); }
         .btn-vpn { background: linear-gradient(45deg, #ff0080, #7928ca); }
         .btn-pay { background: linear-gradient(45deg, #00dfd8, #007cf0); }
         .btn-ref { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); }
@@ -92,7 +91,6 @@
         </div>
         
         <button class="btn btn-rocket" id="rocketBtn">🚀 ПОДКЛЮЧИТЬ VPN</button>
-        <button class="btn btn-test" id="testBtn">🎁 ТЕСТОВЫЙ ПЕРИОД (24ч)</button>
         
         <button class="btn btn-vpn" onclick="openTariffModal()">💎 ВЫБРАТЬ ТАРИФ</button>
         <button class="btn btn-pay" onclick="openAmountModal()">💳 ПОПОЛНИТЬ БАЛАНС</button>
@@ -124,7 +122,6 @@
         if (parseInt(days) > 0) { 
             document.getElementById('statusDisplay').innerText = "● Активен"; 
             document.getElementById('statusDisplay').style.color = "#00ff00"; 
-            document.getElementById('testBtn').style.display = "none";
         }
 
         function handleLaunch(actionData) {
@@ -140,21 +137,14 @@
             }, 3000); 
         }
 
-        document.getElementById('testBtn').onclick = function() {
-            handleLaunch({action: 'get_free_test'});
-        };
-
         document.getElementById('refBtn').onclick = function() {
             tg.sendData(JSON.stringify({action: 'ref_program'}));
             tg.close();
         };
 
         document.getElementById('rocketBtn').onclick = function() {
-            if (parseInt(days) <= 0) {
-                tg.showAlert("Сначала активируйте тест или купите подписку!");
-            } else {
-                handleLaunch({action: 'request_vpn_button'});
-            }
+            // Теперь кнопка всегда запускает действие, так как тест активируется в боте
+            handleLaunch({action: 'request_vpn_button'});
         };
 
         function openTariffModal() { closeAll(); document.getElementById('tariffModal').classList.add('active'); }
@@ -167,7 +157,6 @@
                 tg.showAlert("Введите корректную сумму пополнения");
                 return;
             }
-            // Исправлено: action "deposit" для соответствия bot.py
             tg.sendData(JSON.stringify({
                 action: "deposit",
                 amount: parseInt(val)
