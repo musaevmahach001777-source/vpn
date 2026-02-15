@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Rocket VPN</title>
     <meta name="lava-verify" content="677db46633fe55a6" />
-    <meta name="enot" content="e85fe72f" />
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root { --bg: #0f0c29; --glass: rgba(255, 255, 255, 0.07); --accent-pink: #ff0080; --accent-cyan: #00dfd8; --text: #ffffff; }
@@ -151,6 +150,10 @@
         .pay-option { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
         
         .badge-sale { background: var(--accent-pink); color: white; font-size: 10px; padding: 4px 8px; border-radius: 10px; font-weight: 800; }
+        
+        /* Стиль для сообщения о тех.работах */
+        .work-notice { text-align: center; line-height: 1.5; margin-bottom: 20px; }
+        .work-title { color: var(--accent-pink); font-weight: 800; font-size: 18px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -263,17 +266,9 @@
         function closeAll() { document.querySelectorAll('.modal').forEach(m => m.classList.remove('active')); }
         
         function sendPayment() {
-            const val = document.getElementById('sumInput').value;
-            if(!val || isNaN(val) || parseInt(val) <= 0) {
-                tg.showAlert("Введите корректную сумму пополнения");
-                return;
-            }
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            tg.sendData(JSON.stringify({
-                action: "deposit",
-                amount: parseInt(val)
-            }));
-            tg.close();
+            closeAll();
+            document.getElementById('workModal').classList.add('active');
         }
 
         function confirmBuy(m, p) {
@@ -333,6 +328,20 @@
         <input type="number" id="sumInput" placeholder="Сумма (₽)" min="10">
         <button class="btn btn-pay" onclick="sendPayment()">ПЕРЕЙТИ К ОПЛАТЕ</button>
         <div style="text-align:center; margin-top:15px; opacity:0.5" onclick="closeAll()">Отмена</div>
+    </div>
+
+    <div class="modal" id="workModal">
+        <div class="work-notice">
+            <div class="work-title">Технические работы</div>
+            <div style="font-size: 14px; opacity: 0.9;">
+                Автоматизированное пополнение недоступно. Проводятся технические работы.<br><br>
+                Для пополнения напишите менеджеру. Время ответа и пополнения займет не более двух минут.
+            </div>
+        </div>
+        <a href="https://t.me/SuperRocketSupport" class="btn btn-rocket" style="animation: none; background: var(--accent-cyan); color: #000;">
+            👨‍💻 НАПИСАТЬ МЕНЕДЖЕРУ
+        </a>
+        <div style="text-align:center; margin-top:20px; opacity:0.5" onclick="closeAll()">Закрыть</div>
     </div>
 </body>
 </html>
