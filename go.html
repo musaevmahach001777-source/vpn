@@ -113,7 +113,7 @@
             // Декодируем vless ссылку из base64
             const rawVless = atob(enc);
 
-            // 1. Копируем в буфер (на всякий случай)
+            // 1. Копируем в буфер (для тех случаев, если приложение потребует ручную вставку)
             const el = document.createElement('textarea');
             el.value = rawVless;
             document.body.appendChild(el);
@@ -121,17 +121,17 @@
             document.execCommand('copy');
             document.body.removeChild(el);
 
-            // 2. Логика перехода в Happ
+            // 2. Логика перехода в Happ (используем прямой импорт)
             setTimeout(() => {
-                // Прямой импорт в Happ (работает и на iOS и на Android)
                 window.location.href = "happ://import/" + rawVless;
                 status.innerText = "Открываем Happ...";
             }, 600);
 
-            // 3. Запасной запуск, если прямая ссылка не сработала
+            // 3. Запасной запуск через 2.5 секунды с подсказкой
             setTimeout(() => {
+                // Если приложение не открыло окно импорта само
                 window.location.href = "happ://";
-                status.innerText = "Готово! Ключ скопирован. Если Happ не открылся, вставьте его вручную.";
+                status.innerHTML = "Готово!<br>Если импорт не начался автоматически — нажмите в приложении кнопку <b>'Из буфера'</b>.";
             }, 2500);
         }
     </script>
