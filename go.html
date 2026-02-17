@@ -30,16 +30,12 @@
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .logo {
-            font-size: 40px;
-            margin-bottom: 20px;
-        }
+        .logo { font-size: 40px; margin-bottom: 20px; }
         h2 { color: #00dfd8; margin: 0 0 10px 0; font-size: 22px; }
         p { color: #8b949e; font-size: 15px; line-height: 1.5; margin-bottom: 30px; }
         
         .loader {
-            width: 40px;
-            height: 40px;
+            width: 40px; height: 40px;
             border: 3px solid rgba(0, 223, 216, 0.1);
             border-top: 3px solid #00dfd8;
             border-radius: 50%;
@@ -55,18 +51,13 @@
             background: #00dfd8; 
             color: #0b0e14; 
             padding: 18px; 
-            text-decoration: none; 
             border-radius: 16px; 
             font-weight: bold; 
             width: 100%; 
             border: none; 
             cursor: pointer; 
             font-size: 17px;
-            transition: transform 0.2s, box-shadow 0.2s;
             box-shadow: 0 4px 15px rgba(0, 223, 216, 0.3);
-        }
-        .btn:active {
-            transform: scale(0.98);
         }
         .status-msg {
             margin-top: 20px;
@@ -80,12 +71,9 @@
     <div class="card">
         <div class="logo">🚀</div>
         <h2>Rocket VPN</h2>
-        <p id="desc">Нажми кнопку ниже, чтобы автоматически добавить ключ в приложение Happ.</p>
-        
+        <p id="desc">Нажми кнопку ниже для автоматического добавления подписки в Happ.</p>
         <div id="loader" class="loader" style="display:none;"></div>
-        
         <button id="mainBtn" onclick="superImport()" class="btn">⚡️ ПОДКЛЮЧИТЬ</button>
-        
         <div id="status" class="status-msg"></div>
     </div>
 
@@ -107,12 +95,12 @@
             btn.style.display = 'none';
             desc.style.display = 'none';
             loader.style.display = 'block';
-            status.innerText = "Подготовка ключа...";
+            status.innerText = "Запуск импорта...";
 
-            // Декодируем vless ссылку
+            // 1. Декодируем vless ссылку
             const rawVless = atob(enc);
 
-            // 1. Копируем в буфер обмена (обязательно для Android и ручного ввода)
+            // 2. Копируем в буфер (запасной вариант)
             const el = document.createElement('textarea');
             el.value = rawVless;
             document.body.appendChild(el);
@@ -120,28 +108,27 @@
             document.execCommand('copy');
             document.body.removeChild(el);
 
-            // 2. ПРИНУДИТЕЛЬНЫЙ ВЫЗОВ HAPP (через скрытую ссылку)
-            // Мы используем happ://import/, чтобы не давать системе выбора между V2box и другими
-            const happLink = "happ://import/" + rawVless;
+            // 3. ЛОГИКА КОНКУРЕНТОВ (sing-box протокол)
+            // Happ лучше всего распознает авто-импорт через эту схему
+            const importUrl = "sing-box://import/" + encodeURIComponent(rawVless);
             
+            // Создаем невидимый элемент для клика
             const link = document.createElement('a');
-            link.href = happLink;
+            link.href = importUrl;
             document.body.appendChild(link);
             
             setTimeout(() => {
-                link.click(); // Эмулируем реальный клик
-                status.innerText = "Запуск Happ...";
+                link.click(); // Симулируем нажатие пользователя
                 document.body.removeChild(link);
-            }, 300);
+            }, 100);
 
-            // 3. Запасной метод через замену location (если клик не прошел)
+            // 4. Дополнительная попытка через прямой вызов happ://
             setTimeout(() => {
-                window.location.replace(happLink);
-            }, 1000);
+                window.location.href = "happ://import/" + encodeURIComponent(rawVless);
+            }, 800);
 
-            // 4. Финальное сообщение
             setTimeout(() => {
-                status.innerHTML = "Готово!<br>Если приложение не открылось автоматически — нажмите в Happ кнопку <b>'Из буфера'</b>.";
+                status.innerHTML = "Готово!<br>Если приложение не открылось — нажмите <b>'Из буфера'</b> в приложении.";
             }, 2500);
         }
     </script>
