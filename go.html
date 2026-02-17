@@ -109,9 +109,10 @@
             loader.style.display = 'block';
             status.innerText = "Подготовка ключа...";
 
+            // Декодируем ключ
             const rawVless = atob(enc);
 
-            // 1. Копируем в буфер (фоновый метод)
+            // 1. Копируем в буфер (для Android это важно)
             const el = document.createElement('textarea');
             el.value = rawVless;
             document.body.appendChild(el);
@@ -119,19 +120,25 @@
             document.execCommand('copy');
             document.body.removeChild(el);
 
-            // 2. Логика перехода
+            // 2. Логика автоматического добавления
             setTimeout(() => {
-                // Пытаемся открыть Happ напрямую с ключом без лишнего кодирования
-                // Для iOS это самый надежный способ вызвать авто-импорт
-                window.location.replace("happ://import/" + rawVless);
-                status.innerText = "Открываем Happ...";
-            }, 500);
+                // СЕКРЕТ ТУТ: Мы открываем прямую vless ссылку. 
+                // iOS сама спросит "Открыть в Happ?" и импорт произойдет мгновенно.
+                window.location.href = rawVless; 
+                status.innerText = "Открываем приложение...";
+            }, 400);
 
-            // 3. Запасной метод, если первый не открыл импорт
+            // 3. Запасной вариант для старых версий
             setTimeout(() => {
-                window.location.href = "happ://";
-                status.innerHTML = "Готово!<br>Если импорт не начался автоматически — нажмите в приложении кнопку <b>'Из буфера'</b>.";
-            }, 2000);
+                // Если прямая ссылка не подхватилась, пробуем через протокол приложения
+                if (status.innerText !== "Готово!") {
+                    window.location.href = "happ://import/" + encodeURIComponent(rawVless);
+                }
+            }, 1500);
+
+            setTimeout(() => {
+                status.innerHTML = "Готово!<br>Если конфиг не добавился — нажмите в приложении <b>'Из буфера'</b>.";
+            }, 3000);
         }
     </script>
 </body>
