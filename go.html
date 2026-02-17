@@ -36,7 +36,6 @@
         }
         h2 { color: #00dfd8; margin: 0 0 10px 0; font-size: 22px; }
         p { color: #8b949e; font-size: 15px; line-height: 1.5; margin-bottom: 30px; }
-        
         .loader {
             width: 40px;
             height: 40px;
@@ -50,7 +49,6 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
         .btn { 
             background: #00dfd8; 
             color: #0b0e14; 
@@ -81,57 +79,60 @@
         <div class="logo">🚀</div>
         <h2>Rocket VPN</h2>
         <p id="desc">Нажми кнопку ниже, чтобы автоматически добавить ключ в приложение Happ.</p>
-        
         <div id="loader" class="loader" style="display:none;"></div>
-        
         <button id="mainBtn" onclick="superImport()" class="btn">⚡️ ПОДКЛЮЧИТЬ</button>
-        
         <div id="status" class="status-msg"></div>
     </div>
-
     <script>
+        function isIOS() {
+            return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        }
         function superImport() {
             const btn = document.getElementById('mainBtn');
             const loader = document.getElementById('loader');
             const status = document.getElementById('status');
             const desc = document.getElementById('desc');
-
             const urlParams = new URLSearchParams(window.location.search);
             const enc = urlParams.get('enc');
-            
             if (!enc) {
                 status.innerText = "Ошибка: Ключ не найден.";
                 return;
             }
-            
+            // Визуальный отклик
             btn.style.display = 'none';
             desc.style.display = 'none';
             loader.style.display = 'block';
             status.innerText = "Подготовка ключа...";
-
+            // Декодируем vless ссылку из base64
             const rawVless = atob(enc);
-
-            // 1. Копируем в буфер (фоновый метод)
+            // 1. Копируем в буфер (для тех случаев, если приложение потребует ручную вставку)
             const el = document.createElement('textarea');
             el.value = rawVless;
             document.body.appendChild(el);
             el.select();
             document.execCommand('copy');
             document.body.removeChild(el);
-
-            // 2. Логика перехода
+            // 2. Логика перехода в Happ
             setTimeout(() => {
-                // Пытаемся открыть Happ напрямую с ключом без лишнего кодирования
-                // Для iOS это самый надежный способ вызвать авто-импорт
-                window.location.replace("happ://import/" + rawVless);
-                status.innerText = "Открываем Happ...";
-            }, 500);
-
-            // 3. Запасной метод, если первый не открыл импорт
+                if (isIOS()) {
+                    // Для iOS — Universal Link
+                    const iosLink = 'https://happlink.app/open?config=' + encodeURIComponent(rawVless);
+                    window.location.href = iosLink;
+                    status.innerText = "Открываем Happ через Universal Link...";
+                } else {
+                    // Для Android и других — deeplink
+                    const safeVless = encodeURIComponent(rawVless);
+                    window.location.href = "happ://import/" + safeVless;
+                    status.innerText = "Открываем Happ...";
+                }
+            }, 600);
+            // 3. Запасной запуск через 2.5 секунды с подсказкой
             setTimeout(() => {
-                window.location.href = "happ://";
+                if (!isIOS()) {
+                    window.location.href = "happ://";
+                }
                 status.innerHTML = "Готово!<br>Если импорт не начался автоматически — нажмите в приложении кнопку <b>'Из буфера'</b>.";
-            }, 2000);
+            }, 2500);
         }
     </script>
 </body>
