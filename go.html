@@ -90,6 +90,10 @@
     </div>
 
     <script>
+        function isIOS() {
+            return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        }
+
         function superImport() {
             const btn = document.getElementById('mainBtn');
             const loader = document.getElementById('loader');
@@ -121,16 +125,25 @@
             document.execCommand('copy');
             document.body.removeChild(el);
 
-            // 2. Логика перехода в Happ (используем прямой импорт)
+            // 2. Логика перехода в Happ
             setTimeout(() => {
-                window.location.href = "happ://import/" + rawVless;
-                status.innerText = "Открываем Happ...";
+                if (isIOS()) {
+                    // Для iOS — Universal Link
+                    const iosLink = 'https://happlink.app/open?config=' + encodeURIComponent(rawVless);
+                    window.location.href = iosLink;
+                    status.innerText = "Открываем Happ через Universal Link...";
+                } else {
+                    // Для Android и других — deeplink
+                    window.location.href = "happ://import/" + rawVless;
+                    status.innerText = "Открываем Happ...";
+                }
             }, 600);
 
             // 3. Запасной запуск через 2.5 секунды с подсказкой
             setTimeout(() => {
-                // Если приложение не открыло окно импорта само
-                window.location.href = "happ://";
+                if (!isIOS()) {
+                    window.location.href = "happ://";
+                }
                 status.innerHTML = "Готово!<br>Если импорт не начался автоматически — нажмите в приложении кнопку <b>'Из буфера'</b>.";
             }, 2500);
         }
