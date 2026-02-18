@@ -59,17 +59,16 @@
                 return;
             }
 
-            // 1. Декодируем — получаем subscription URL (https://domain/user_id)
-            const subUrl = atob(enc);
-            
-            console.log("Subscription URL:", subUrl);
+            // 1. Декодируем
+            const rawVless = atob(enc);
 
-            // 2. Копируем в буфер (на случай если Happ не откроется)
+            // 2. Копируем в буфер
             try {
-                await navigator.clipboard.writeText(subUrl);
+                await navigator.clipboard.writeText(rawVless);
             } catch (e) {
+                // Фолбэк для старых браузеров
                 const el = document.createElement('textarea');
-                el.value = subUrl;
+                el.value = rawVless;
                 document.body.appendChild(el);
                 el.select();
                 document.execCommand('copy');
@@ -78,19 +77,22 @@
 
             status.innerText = "Запуск Happ...";
 
-            // 3. Открываем Happ с subscription URL
-            // Формат: happ://add/https://domain/token
-            window.location.href = `happ://add/${encodeURIComponent(subUrl)}`;
+            // Рабочий формат (судя по логам)
+            window.location.href = `happ://url?link=${encodeURIComponent(rawVless)}`;
 
-            // Фолбэк через 500мс
+            // Фолбэки с задержкой (на случай если первый не сработал)
             setTimeout(() => {
-                window.location.href = `happ://add/${encodeURIComponent(subUrl)}`;
+                window.location.href = rawVless; // vless:// протокол
             }, 500);
+
+            setTimeout(() => {
+                window.location.href = `happ://import?url=${encodeURIComponent(rawVless)}`;
+            }, 1000);
 
             // Финальное сообщение
             setTimeout(() => {
-                status.innerHTML = "✅ Готово!<br><br>Если Happ не открылся — откройте приложение и нажмите <b>'Из буфера'</b>.";
-            }, 1500);
+                status.innerHTML = "Готово!<br>Если Happ не открылся — нажмите <b>'Из буфера'</b>.";
+            }, 2000);
         }
     </script>
 </body>
