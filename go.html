@@ -77,32 +77,22 @@
 
             status.innerText = "Запуск Happ...";
 
-            // Массив возможных форматов Deep Link
-            const deepLinkFormats = [
-                `happ://import?url=${encodeURIComponent(rawVless)}`,
-                `happ://add-subscription`,
-                rawVless, // vless:// протокол
-                `happ://key/${encodeURIComponent(rawVless)}`
-            ];
+            // Рабочий формат (судя по логам)
+            window.location.href = `happ://url?link=${encodeURIComponent(rawVless)}`;
 
-            // Пробуем каждый формат
-            for (const url of deepLinkFormats) {
-                window.location.href = url;
-                
-                // Ждём 1.5 секунды
-                await new Promise(resolve => setTimeout(resolve, 1500));
-                
-                // Если страница всё ещё видима — пробуем следующий формат
-                if (document.visibilityState === 'visible') {
-                    continue;
-                } else {
-                    // Приложение открылось!
-                    return;
-                }
-            }
+            // Фолбэки с задержкой (на случай если первый не сработал)
+            setTimeout(() => {
+                window.location.href = rawVless; // vless:// протокол
+            }, 500);
 
-            // Если ничего не сработало
-            status.innerHTML = "🔑 Ключ скопирован!<br><br>Откройте Happ и нажмите <b>'Из буфера'</b>.";
+            setTimeout(() => {
+                window.location.href = `happ://import?url=${encodeURIComponent(rawVless)}`;
+            }, 1000);
+
+            // Финальное сообщение
+            setTimeout(() => {
+                status.innerHTML = "Готово!<br>Если Happ не открылся — нажмите <b>'Из буфера'</b>.";
+            }, 2000);
         }
     </script>
 </body>
