@@ -245,6 +245,10 @@
 
         function openWorkNotice() {
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+            // Эффект сыпящихся звездочек
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => createStar(), i * 60);
+            }
             closeAll();
             document.getElementById('workModal').classList.add('active');
         }
@@ -341,4 +345,3 @@
     </div>
 </body>
 </html>
-
