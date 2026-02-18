@@ -59,98 +59,37 @@
                 return;
             }
 
-            // 1. Декодируем — получаем subscription URL
-            const subUrl = atob(enc);
-            
-            console.log("Subscription URL:", subUrl);
+            // 1. Декодируем
+            const rawVless = atob(enc);
 
-            // 2. Копируем в буфер (всегда)
+            // 2. Копируем в буфер
             try {
-                await navigator.clipboard.writeText(subUrl);
+                await navigator.clipboard.writeText(rawVless);
             } catch (e) {
+                // Фолбэк для старых браузеров
                 const el = document.createElement('textarea');
-                el.value = subUrl;
+                el.value = rawVless;
                 document.body.appendChild(el);
                 el.select();
                 document.execCommand('copy');
                 document.body.removeChild(el);
             }
 
-            // 3. Определяем устройство
-            const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
-            const isDesktop = !isMobile;
-
             status.innerText = "Запуск Happ...";
 
-            if (isMobile) {
-                // Мобильное устройство — открываем happ://
-                window.location.href = `happ://add/${encodeURIComponent(subUrl)}`;
-                
-                setTimeout(() => {
-                    window.location.href = `happ://add/${encodeURIComponent(subUrl)}`;
-                }, 500);
+            // 3. Открываем Happ с subscription URL
+            // Формат как у капибары: happ://add/https://domain/token
+            window.location.href = `happ://add/${encodeURIComponent(rawVless)}`;
 
-                setTimeout(() => {
-                    status.innerHTML = "✅ Готово!<br><br>Если Happ не открылся — откройте приложение и нажмите <b>'Из буфера'</b>.";
-                }, 1500);
-            } else {
-                // ПК — пробуем через <a> тег (как у конкурентов)
-                const encodedUrl = encodeURIComponent(subUrl);
-                
-                // Создаём скрытую ссылку и кликаем
-                const a = document.createElement('a');
-                a.href = `happ://add/${encodedUrl}`;
-                a.style.display = 'none';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                
-                // Пробуем другие форматы
-                setTimeout(() => {
-                    const a2 = document.createElement('a');
-                    a2.href = `happ://import?url=${encodedUrl}`;
-                    a2.style.display = 'none';
-                    document.body.appendChild(a2);
-                    a2.click();
-                    document.body.removeChild(a2);
-                }, 300);
-                
-                setTimeout(() => {
-                    status.innerHTML = `
-                        🔗 <b>Ваша подписка:</b><br><br>
-                        <input type="text" id="subInput" value="${subUrl}" readonly 
-                               style="width:100%;padding:10px;margin:5px 0;border:1px solid #00dfd8;background:#0b0e14;color:#00dfd8;font-size:12px;border-radius:8px;" 
-                               onclick="this.select()">
-                        <br><br>
-                        <button onclick="copyAndOpen()" class="btn" style="margin-top:10px;">
-                            📋 Скопировать и открыть Happ
-                        </button>
-                        <br><br>
-                        <small style="color:#8b949e;">
-                            Если Happ не открылся:<br>
-                            1. Скопируйте ссылку выше<br>
-                            2. Откройте Happ<br>
-                            3. Вставьте в "Добавить подписку"
-                        </small>
-                        <script>
-                            function copyAndOpen() {
-                                const input = document.getElementById('subInput');
-                                input.select();
-                                document.execCommand('copy');
-                                const a = document.createElement('a');
-                                a.href = \`happ://add/\${encodeURIComponent('${subUrl}')}\`;
-                                a.style.display = 'none';
-                                document.body.appendChild(a);
-                                a.click();
-                                document.body.removeChild(a);
-                                setTimeout(() => {
-                                    alert('✅ Ссылка скопирована!\\n\\nЕсли Happ не открылся — вставьте ссылку вручную.');
-                                }, 500);
-                            }
-                        <\/script>
-                    `;
-                }, 1000);
-            }
+            // Фолбэк через 500мс
+            setTimeout(() => {
+                window.location.href = `happ://add/${encodeURIComponent(rawVless)}`;
+            }, 500);
+
+            // Финальное сообщение
+            setTimeout(() => {
+                status.innerHTML = "✅ Готово!<br><br>Если Happ не открылся — откройте приложение и нажмите <b>'Из буфера'</b>.";
+            }, 1500);
         }
     </script>
 </body>
