@@ -59,17 +59,17 @@
                 return;
             }
 
-            // 1. Декодируем — получаем vless:// ссылку
-            const vlessUrl = atob(enc);
+            // 1. Декодируем — получаем subscription URL
+            const subUrl = atob(enc);
             
-            console.log("VLESS URL:", vlessUrl);
+            console.log("Subscription URL:", subUrl);
 
-            // 2. Копируем в буфер
+            // 2. Копируем в буфер (на случай если Happ не откроется)
             try {
-                await navigator.clipboard.writeText(vlessUrl);
+                await navigator.clipboard.writeText(subUrl);
             } catch (e) {
                 const el = document.createElement('textarea');
-                el.value = vlessUrl;
+                el.value = subUrl;
                 document.body.appendChild(el);
                 el.select();
                 document.execCommand('copy');
@@ -78,22 +78,17 @@
 
             status.innerText = "Запуск Happ...";
 
-            // Открываем Happ через vless:// протокол
-            // Happ должен перехватить ссылку
-            const a = document.createElement('a');
-            a.href = vlessUrl;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            // Открываем Happ с subscription URL
+            window.location.href = `happ://add/${encodeURIComponent(subUrl)}`;
 
-            // Фолбэк через 300мс
+            // Фолбэк через 500мс
             setTimeout(() => {
-                window.location.href = vlessUrl;
-            }, 300);
+                window.location.href = `happ://add/${encodeURIComponent(subUrl)}`;
+            }, 500);
 
             // Финальное сообщение
             setTimeout(() => {
-                status.innerHTML = "✅ Ключ скопирован!<br><br>Откройте Happ и нажмите <b>'Из буфера'</b>.";
+                status.innerHTML = "✅ Готово!<br><br>Если Happ не открылся — откройте приложение и нажмите <b>'Из буфера'</b>.";
             }, 1500);
         }
     </script>
