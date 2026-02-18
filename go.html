@@ -49,50 +49,54 @@
     </div>
 
     <script>
-        async function superImport() {
+        function superImport() {
             const status = document.getElementById('status');
             const urlParams = new URLSearchParams(window.location.search);
             const enc = urlParams.get('enc');
-
+            
             if (!enc) {
                 status.innerText = "Ошибка: Ключ не найден.";
                 return;
             }
-
+            
             // 1. Декодируем
             const rawVless = atob(enc);
 
-            // 2. Копируем в буфер
-            try {
-                await navigator.clipboard.writeText(rawVless);
-            } catch (e) {
-                // Фолбэк для старых браузеров
-                const el = document.createElement('textarea');
-                el.value = rawVless;
-                document.body.appendChild(el);
-                el.select();
-                document.execCommand('copy');
-                document.body.removeChild(el);
-            }
+            // 2. Копируем в буфер (обязательно для подстраховки)
+            const el = document.createElement('textarea');
+            el.value = rawVless;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            // 3. ФОРМАТ КОНКУРЕНТОВ:
+            // Happ лучше всего импортирует через схему sing-box.
+            // Если rawVless - это ссылка на подписку (http), используем это.
+            // Если это vless://, тоже работает.
+            const configUrl = encodeURIComponent(rawVless);
+            
+            // Пробуем несколько методов одновременно для iOS
+            
+            // Метод А: Прямой вызов через скрытую ссылку (самый надежный)
+            const a = document.createElement('a');
+            a.href = "sing-box://import/" + configUrl + "#Rocket%20VPN";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
 
             status.innerText = "Запуск Happ...";
 
-            // Рабочий формат (судя по логам)
-            window.location.href = `happ://url?link=${encodeURIComponent(rawVless)}`;
-
-            // Фолбэки с задержкой (на случай если первый не сработал)
+            // Метод Б: Если А не сработал через 500мс
             setTimeout(() => {
-                window.location.href = rawVless; // vless:// протокол
+                window.location.href = "happ://import/" + configUrl;
             }, 500);
 
+            // Метод В: Для совсем старых версий через 1.2 сек
             setTimeout(() => {
-                window.location.href = `happ://import?url=${encodeURIComponent(rawVless)}`;
-            }, 1000);
-
-            // Финальное сообщение
-            setTimeout(() => {
-                status.innerHTML = "Готово!<br>Если Happ не открылся — нажмите <b>'Из буфера'</b>.";
-            }, 2000);
+                window.location.href = rawVless;
+                status.innerHTML = "Готово!<br>Если приложение не открылось автоматически — нажмите в приложении <b>'Из буфера'</b>.";
+            }, 1200);
         }
     </script>
 </body>
